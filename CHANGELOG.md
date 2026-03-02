@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Prism Pay will be documented in this file.
+All notable changes to Prism Vault will be documented in this file.
 
 ## [1.2.0] - 2026-03-02
 

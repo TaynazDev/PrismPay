@@ -1,4 +1,4 @@
-# Prism Pay
+# Prism Vault
 
 A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track transactions, set spending limits, analyze spending patterns, and split bills with friends—all in one sleek app.
 
