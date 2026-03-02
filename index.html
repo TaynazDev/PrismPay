@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prism Pay - Budget Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 20% 30%, rgba(244, 63, 110, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+            animation: rotate 20s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .logo {
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: gradient 3s ease infinite;
+        }
+
+        @keyframes gradient {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        /* Glass card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: cardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(244, 63, 110, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(244, 63, 110, 0.08), 0 0 40px rgba(59, 130, 246, 0.06);
+        }
+
+        /* Staggered entrance delays */
+        .glass-card:nth-child(1) { animation-delay: 0.1s; }
+        .glass-card:nth-child(2) { animation-delay: 0.2s; }
+        .glass-card:nth-child(3) { animation-delay: 0.3s; }
+        .glass-card:nth-child(4) { animation-delay: 0.4s; }
+        .glass-card:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: cardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.25s; }
+        .stat-card:nth-child(3) { animation-delay: 0.4s; }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(244, 63, 110, 0.25);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 24px rgba(244, 63, 110, 0.1), 0 0 48px rgba(59, 130, 246, 0.08);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .stat-card.balance-card::before {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+        }
+
+        .stat-card.income-card::before {
+            background: #10b981;
+        }
+
+        .stat-card.expense-card::before {
+            background: #f43f6e;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card.balance-card .stat-icon {
+            background: linear-gradient(135deg, rgba(244, 63, 110, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+        }
+
+        .stat-card.income-card .stat-icon {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .stat-card.expense-card .stat-icon {
+            background: rgba(244, 63, 110, 0.15);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .stat-card.balance-card .stat-value {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card.income-card .stat-value {
+            color: #10b981;
+        }
+
+        .stat-card.expense-card .stat-value {
+            color: #f43f6e;
+        }
+
+        /* Dashboard Row: Chart + Form */
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Chart Card */
+        .chart-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .chart-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 280px;
+        }
+
+        .chart-container canvas {
+            max-height: 300px;
+        }
+
+        .chart-empty {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 40px 20px;
+        }
+
+        .chart-empty-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Budget Section */
+        .budget-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .budget-setup {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .budget-setup .form-group {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .budget-setup .btn-sm {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(244, 63, 110, 0.3);
+        }
+
+        .budget-setup .btn-sm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 63, 110, 0.4), 0 0 30px rgba(59, 130, 246, 0.12);
+        }
+
+        .budget-progress-area {
+            display: none;
+        }
+
+        .budget-progress-area.active {
+            display: block;
+        }
+
+        .budget-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 14px;
+        }
+
+        .budget-spent {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .budget-spent .budget-of {
+            font-size: 14px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .budget-period-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: capitalize;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 99px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease;
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            min-width: 0;
+            max-width: 100%;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .budget-percent {
+            text-align: right;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 10px;
+        }
+
+        .budget-warning {
+            display: none;
+            margin-top: 16px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .budget-warning.over-80 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+        }
+
+        .budget-warning.over-100 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+        }
+
+        .budget-reset {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .budget-reset:hover {
+            border-color: rgba(244, 63, 110, 0.4);
+            color: #f43f6e;
+        }
+
+        /* Group Pots */
+        .pots-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .pot-create-form {
+            display: grid;
+            gap: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .pot-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .pot-people-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pot-people-input-row input {
+            flex: 1;
+        }
+
+        .pot-add-person-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            padding: 0 16px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pot-add-person-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-shadow: 0 0 12px rgba(244, 63, 110, 0.1);
+        }
+
+        .pot-people-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 24px;
+        }
+
+        .pot-tag {
+            background: linear-gradient(135deg, rgba(244, 63, 110, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .pot-tag-remove {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .pot-tag-remove:hover {
+            color: #f43f6e;
+        }
+
+        .pots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .pot-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 22px;
+            animation: slideIn 0.4s ease;
+            transition: all 0.3s ease;
+        }
+
+        .pot-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 16px rgba(244, 63, 110, 0.06), 0 0 20px rgba(59, 130, 246, 0.04);
+        }
+
+        .pot-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .pot-item-name {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pot-item-total {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        .pot-item-total span {
+            color: white;
+            font-weight: 600;
+        }
+
+        .pot-delete-btn {
+            background: rgba(244, 63, 110, 0.1);
+            border: none;
+            color: #f43f6e;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pot-delete-btn:hover {
+            background: rgba(244, 63, 110, 0.2);
+            box-shadow: 0 0 12px rgba(244, 63, 110, 0.15);
+        }
+
+        .pot-shares {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .pot-share-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pot-share-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .pot-share-amount {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f43f6e;
+        }
+
+        .pots-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .pots-empty-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* Form section */
+        .form-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #f43f6e;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(244, 63, 110, 0.1);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Button */
+        .btn {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(244, 63, 110, 0.25);
+            position: relative;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(244, 63, 110, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(244, 63, 110, 0.3);
+        }
+
+        /* Transactions section */
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .transactions-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 12px rgba(244, 63, 110, 0.1);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(244, 63, 110, 0.3), 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .transactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .transaction-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 16px rgba(244, 63, 110, 0.06), 0 0 20px rgba(59, 130, 246, 0.04);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-description {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .transaction-category {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .transaction-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .transaction-amount.income {
+            color: #10b981;
+        }
+
+        .transaction-amount.expense {
+            color: #f43f6e;
+        }
+
+        .delete-btn {
+            background: rgba(244, 63, 110, 0.1);
+            border: none;
+            color: #f43f6e;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: rgba(244, 63, 110, 0.2);
+            box-shadow: 0 0 12px rgba(244, 63, 110, 0.15);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(244, 63, 110, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(244, 63, 110, 0.5), 0 0 50px rgba(59, 130, 246, 0.2);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease, background 0.35s ease, backdrop-filter 0.35s ease, -webkit-backdrop-filter 0.35s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 32px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: translateY(30px) scale(0.95);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-shadow: 0 0 12px rgba(244, 63, 110, 0.1);
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .type-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .type-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 16px rgba(244, 63, 110, 0.08);
+        }
+
+        .type-option.selected {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(244, 63, 110, 0.3), 0 0 24px rgba(59, 130, 246, 0.12);
+        }
+
+        textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #f43f6e;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(244, 63, 110, 0.1);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .logo {
+                font-size: 48px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 26px;
+            }
+
+            .dashboard-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .transactions-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .filter-buttons {
+                width: 100%;
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .transaction-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .pot-form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .pot-shares {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .filter-btn {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+
+            .fab {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .modal {
+                padding: 24px;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">$</div>
+            <h1>Prism Pay</h1>
+            <p class="tagline">Track your finances with clarity</p>
+        </header>
+
+        <!-- Dashboard Stats -->
+        <div class="stats-grid">
+            <div class="stat-card balance-card">
+                <div class="stat-icon">💎</div>
+                <div class="stat-label">Total Balance</div>
+                <div class="stat-value" id="totalBalance">$0.00</div>
+            </div>
+            <div class="stat-card income-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-label">Total Income</div>
+                <div class="stat-value" id="totalIncome">$0.00</div>
+            </div>
+            <div class="stat-card expense-card">
+                <div class="stat-icon">📉</div>
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value" id="totalExpense">$0.00</div>
+            </div>
+        </div>
+
+        <!-- Budget Section -->
+        <div class="glass-card budget-card">
+            <h2>Budget</h2>
+            <div class="budget-setup" id="budgetSetup">
+                <div class="form-group">
+                    <label for="budgetAmount">Spending Limit</label>
+                    <input type="number" id="budgetAmount" placeholder="e.g. 500" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="budgetPeriod">Period</label>
+                    <select id="budgetPeriod">
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                    </select>
+                </div>
+                <button class="btn-sm" id="budgetSaveBtn">Set Budget</button>
+            </div>
+            <div class="budget-progress-area" id="budgetProgressArea">
+                <div class="budget-meta">
+                    <div class="budget-spent" id="budgetSpentText">$0.00 <span class="budget-of">of $0.00</span></div>
+                    <div class="budget-period-label" id="budgetPeriodLabel">Monthly Budget</div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="budgetProgressFill" style="width: 0%"></div>
+                </div>
+                <div class="budget-percent" id="budgetPercentText">0% used</div>
+                <div class="budget-warning" id="budgetWarning"></div>
+                <button class="budget-reset" id="budgetResetBtn">Change Budget</button>
+            </div>
+        </div>
+
+        <!-- Chart + Form Row -->
+        <div class="dashboard-row">
+            <!-- Spending Chart -->
+            <div class="glass-card chart-card">
+                <h2>Spending Breakdown</h2>
+                <div class="chart-container" id="chartContainer">
+                    <canvas id="spendingChart"></canvas>
+                    <div class="chart-empty" id="chartEmpty">
+                        <div class="chart-empty-icon">📊</div>
+                        <p>Add expenses to see your<br>spending breakdown</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Transaction Form -->
+            <div class="glass-card form-section">
+                <h2>Add Transaction</h2>
+            <form id="transactionForm" class="form-grid">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" placeholder="e.g. Grocery shopping" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" required>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="Food">Food</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Investment">Investment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Add Transaction</button>
+            </form>
+            </div>
+        </div>
+
+        <!-- Group Pots -->
+        <div class="glass-card pots-section">
+            <h2>Group Pots</h2>
+            <div class="pot-create-form" id="potCreateForm">
+                <div class="pot-form-row">
+                    <div class="form-group">
+                        <label for="potName">Pot Name</label>
+                        <input type="text" id="potName" placeholder="e.g. Dinner at Luigi's">
+                    </div>
+                    <div class="form-group">
+                        <label for="potTotal">Total Cost</label>
+                        <input type="number" id="potTotal" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>People</label>
+                    <div class="pot-people-input-row">
+                        <input type="text" id="potPersonInput" placeholder="Name">
+                        <button class="pot-add-person-btn" id="potAddPersonBtn" type="button">+</button>
+                    </div>
+                    <div class="pot-people-tags" id="potPeopleTags"></div>
+                </div>
+                <button class="btn" id="potSaveBtn" type="button">Create Pot</button>
+            </div>
+            <div class="pots-list" id="potsList">
+                <div class="pots-empty" id="potsEmpty">
+                    <div class="pots-empty-icon">🎯</div>
+                    <p>No group pots yet. Split a bill above!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="glass-card">
+            <div class="transactions-header">
+                <h2>Transactions</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="income">Income</button>
+                    <button class="filter-btn" data-filter="expense">Expenses</button>
+                </div>
+            </div>
+            <div class="transactions-list" id="transactionsList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💳</div>
+                    <p>No transactions yet. Add your first transaction above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fabButton" aria-label="Quick Add Transaction">+</button>
+
+    <!-- Quick Add Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Quick Add</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <form class="modal-form" id="quickAddForm">
+                <div class="form-group">
+                    <label>Type</label>
+                    <div class="type-selector">
+                        <div class="type-option selected" data-type="expense">💸 Expense</div>
+                        <div class="type-option" data-type="income">💰 Income</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="quickAmount">Amount</label>
+                    <input type="number" id="quickAmount" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="quickCategory">Category</label>
+                    <select id="quickCategory" required>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Subscriptions">Subscriptions</option>
+                        <option value="Going Out">Going Out</option>
+                        <option value="Clothes">Clothes</option>
+                        <option value="Random">Random</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quickNote">Note (Optional)</label>
+                    <textarea id="quickNote" placeholder="Add a note..."></textarea>
+                </div>
+                <button type="submit" class="btn">Add Transaction</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let transactions = JSON.parse(localStorage.getItem('prismPayTransactions')) || [];
+        let currentFilter = 'all';
+
+        // DOM Elements
+        const form = document.getElementById('transactionForm');
+        const transactionsList = document.getElementById('transactionsList');
+        const totalBalanceEl = document.getElementById('totalBalance');
+        const totalIncomeEl = document.getElementById('totalIncome');
+        const totalExpenseEl = document.getElementById('totalExpense');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const fabButton = document.getElementById('fabButton');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const modalClose = document.getElementById('modalClose');
+        const quickAddForm = document.getElementById('quickAddForm');
+        const typeOptions = document.querySelectorAll('.type-option');
+        let selectedQuickType = 'expense';
+        let spendingChart = null;
+        let budget = JSON.parse(localStorage.getItem('prismPayBudget')) || null;
+        let pots = JSON.parse(localStorage.getItem('prismPayPots')) || [];
+        let potPeople = [];
+
+        // Chart gradient color palette (reddish-pink → blue)
+        const chartColors = [
+            '#f43f6e',
+            '#e1366e',
+            '#c93a8d',
+            '#a94ab3',
+            '#8b5cf6',
+            '#6366f1',
+            '#3b82f6',
+            '#818cf8',
+            '#f472b6',
+            '#fb7185'
+        ];
+
+        // Initialize
+        init();
+
+        function init() {
+            renderTransactions();
+            updateSummary(true);
+            renderChart();
+            renderBudget();
+            renderPots();
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            form.addEventListener('submit', handleAddTransaction);
+            
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilter = btn.dataset.filter;
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderTransactions();
+                });
+            });
+
+            // Quick add modal events
+            fabButton.addEventListener('click', openModal);
+            modalClose.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+            // Type selector
+            typeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    typeOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedQuickType = option.dataset.type;
+                });
+            });
+
+            // Quick add form
+            quickAddForm.addEventListener('submit', handleQuickAdd);
+
+            // Budget
+            document.getElementById('budgetSaveBtn').addEventListener('click', saveBudget);
+            document.getElementById('budgetResetBtn').addEventListener('click', resetBudget);
+
+            // Group Pots
+            document.getElementById('potAddPersonBtn').addEventListener('click', addPotPerson);
+            document.getElementById('potPersonInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); addPotPerson(); }
+            });
+            document.getElementById('potSaveBtn').addEventListener('click', savePot);
+        }
+
+        function openModal() {
+            modalOverlay.classList.add('active');
+            document.getElementById('quickAmount').focus();
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            quickAddForm.reset();
+            typeOptions.forEach(opt => opt.classList.remove('selected'));
+            typeOptions[0].classList.add('selected');
+            selectedQuickType = 'expense';
+        }
+
+        function handleQuickAdd(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('quickAmount').value);
+            const category = document.getElementById('quickCategory').value;
+            const note = document.getElementById('quickNote').value.trim();
+
+            const transaction = {
+                id: Date.now(),
+                description: note || category,
+                amount,
+                type: selectedQuickType,
+                category,
+                date: new Date().toISOString()
+            };
+
+            transactions.unshift(transaction);
+            saveTransactions();
+            renderTransactions();
+            updateSummary();
+            renderChart();
+            renderBudget();
+            closeModal();
+        }
+
+        function handleAddTransaction(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+
+            const transaction = {
+                id: Date.now(),
+                description,
+                amount,
+                type,
+                category,
+                date: new Date().toISOString()
+            };
+
+            transactions.unshift(transaction);
+            saveTransactions();
+            renderTransactions();
+            updateSummary();
+            renderChart();
+            renderBudget();
+            form.reset();
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveTransactions();
+            renderTransactions();
+            updateSummary();
+            renderChart();
+            renderBudget();
+        }
+
+        function renderTransactions() {
+            let filteredTransactions = transactions;
+            
+            if (currentFilter !== 'all') {
+                filteredTransactions = transactions.filter(t => t.type === currentFilter);
+            }
+
+            if (filteredTransactions.length === 0) {
+                transactionsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💳</div>
+                        <p>${currentFilter === 'all' ? 'No transactions yet. Add your first transaction above!' : `No ${currentFilter} transactions found.`}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            transactionsList.innerHTML = filteredTransactions.map(transaction => {
+                const sign = transaction.type === 'income' ? '+' : '-';
+                const amountClass = transaction.type === 'income' ? 'income' : 'expense';
+                const date = new Date(transaction.date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-description">${transaction.description}</div>
+                            <div class="transaction-category">${transaction.category} • ${date}</div>
+                        </div>
+                        <div class="transaction-right">
+                            <div class="transaction-amount ${amountClass}">
+                                ${sign}$${transaction.amount.toFixed(2)}
+                            </div>
+                            <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">
+                                ×
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function animateCounter(el, target, duration, prefix) {
+            prefix = prefix || '$';
+            const start = performance.now();
+            const from = 0;
+            function step(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                // ease-out cubic
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const current = from + (target - from) * ease;
+                el.textContent = `${prefix}${current.toFixed(2)}`;
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function updateSummary(animate) {
+            const income = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const expense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const balance = income - expense;
+
+            if (animate && (income > 0 || expense > 0)) {
+                animateCounter(totalBalanceEl, balance, 1200);
+                animateCounter(totalIncomeEl, income, 1000);
+                animateCounter(totalExpenseEl, expense, 1000);
+            } else {
+                totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
+                totalIncomeEl.textContent = `$${income.toFixed(2)}`;
+                totalExpenseEl.textContent = `$${expense.toFixed(2)}`;
+            }
+        }
+
+        function renderChart() {
+            const expenses = transactions.filter(t => t.type === 'expense');
+            const chartEmpty = document.getElementById('chartEmpty');
+            const canvas = document.getElementById('spendingChart');
+
+            if (expenses.length === 0) {
+                chartEmpty.style.display = 'block';
+                canvas.style.display = 'none';
+                if (spendingChart) {
+                    spendingChart.destroy();
+                    spendingChart = null;
+                }
+                return;
+            }
+
+            chartEmpty.style.display = 'none';
+            canvas.style.display = 'block';
+
+            // Aggregate by category
+            const categoryMap = {};
+            expenses.forEach(t => {
+                categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount;
+            });
+
+            const labels = Object.keys(categoryMap);
+            const data = Object.values(categoryMap);
+            const colors = labels.map((_, i) => chartColors[i % chartColors.length]);
+
+            if (spendingChart) {
+                spendingChart.data.labels = labels;
+                spendingChart.data.datasets[0].data = data;
+                spendingChart.data.datasets[0].backgroundColor = colors;
+                spendingChart.data.datasets[0].borderColor = colors;
+                spendingChart.update();
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            spendingChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 0,
+                        hoverBorderColor: '#ffffff',
+                        hoverBorderWidth: 2,
+                        spacing: 3,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255,255,255,0.7)',
+                                font: {
+                                    family: 'Inter',
+                                    size: 12
+                                },
+                                padding: 16,
+                                usePointStyle: true,
+                                pointStyleWidth: 10
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 10, 15, 0.9)',
+                            titleFont: { family: 'Inter', weight: '600' },
+                            bodyFont: { family: 'Inter' },
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            cornerRadius: 10,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = ((context.parsed / total) * 100).toFixed(1);
+                                    return ` $${context.parsed.toFixed(2)} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function saveBudget() {
+            const amount = parseFloat(document.getElementById('budgetAmount').value);
+            const period = document.getElementById('budgetPeriod').value;
+
+            if (!amount || amount <= 0) return;
+
+            budget = { amount, period };
+            localStorage.setItem('prismPayBudget', JSON.stringify(budget));
+            renderBudget();
+        }
+
+        function resetBudget() {
+            budget = null;
+            localStorage.removeItem('prismPayBudget');
+            document.getElementById('budgetAmount').value = '';
+            renderBudget();
+        }
+
+        function getSpendingInPeriod() {
+            if (!budget) return 0;
+
+            const now = new Date();
+            let start;
+
+            if (budget.period === 'weekly') {
+                const day = now.getDay();
+                start = new Date(now);
+                start.setDate(now.getDate() - day);
+                start.setHours(0, 0, 0, 0);
+            } else {
+                start = new Date(now.getFullYear(), now.getMonth(), 1);
+            }
+
+            return transactions
+                .filter(t => t.type === 'expense' && new Date(t.date) >= start)
+                .reduce((sum, t) => sum + t.amount, 0);
+        }
+
+        function renderBudget() {
+            const setupEl = document.getElementById('budgetSetup');
+            const progressArea = document.getElementById('budgetProgressArea');
+            const fill = document.getElementById('budgetProgressFill');
+            const spentText = document.getElementById('budgetSpentText');
+            const periodLabel = document.getElementById('budgetPeriodLabel');
+            const percentText = document.getElementById('budgetPercentText');
+            const warningEl = document.getElementById('budgetWarning');
+
+            if (!budget) {
+                setupEl.style.display = 'flex';
+                progressArea.classList.remove('active');
+                return;
+            }
+
+            setupEl.style.display = 'none';
+            progressArea.classList.add('active');
+
+            const spent = getSpendingInPeriod();
+            const pct = Math.min((spent / budget.amount) * 100, 100);
+            const actualPct = (spent / budget.amount) * 100;
+
+            spentText.innerHTML = `$${spent.toFixed(2)} <span class="budget-of">of $${budget.amount.toFixed(2)}</span>`;
+            periodLabel.textContent = `${budget.period.charAt(0).toUpperCase() + budget.period.slice(1)} Budget`;
+            percentText.textContent = `${actualPct.toFixed(1)}% used`;
+
+            fill.style.width = pct + '%';
+            fill.classList.remove('warning', 'danger');
+            warningEl.className = 'budget-warning';
+            warningEl.textContent = '';
+
+            if (actualPct > 100) {
+                fill.classList.add('danger');
+                const over = spent - budget.amount;
+                warningEl.className = 'budget-warning over-100';
+                warningEl.innerHTML = `⚠️ You've exceeded your budget by $${over.toFixed(2)}!`;
+            } else if (actualPct >= 80) {
+                fill.classList.add('warning');
+                const remaining = budget.amount - spent;
+                warningEl.className = 'budget-warning over-80';
+                warningEl.innerHTML = `⚠ Heads up — only $${remaining.toFixed(2)} remaining in your budget.`;
+            }
+        }
+
+        // ---- Group Pots ----
+
+        function addPotPerson() {
+            const input = document.getElementById('potPersonInput');
+            const name = input.value.trim();
+            if (!name) return;
+            if (potPeople.some(p => p.toLowerCase() === name.toLowerCase())) {
+                input.value = '';
+                return;
+            }
+            potPeople.push(name);
+            input.value = '';
+            input.focus();
+            renderPotPeopleTags();
+        }
+
+        function removePotPerson(index) {
+            potPeople.splice(index, 1);
+            renderPotPeopleTags();
+        }
+
+        function renderPotPeopleTags() {
+            const container = document.getElementById('potPeopleTags');
+            container.innerHTML = potPeople.map((name, i) => `
+                <div class="pot-tag">
+                    ${name}
+                    <button class="pot-tag-remove" onclick="removePotPerson(${i})">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function savePot() {
+            const name = document.getElementById('potName').value.trim();
+            const total = parseFloat(document.getElementById('potTotal').value);
+
+            if (!name || !total || total <= 0 || potPeople.length === 0) return;
+
+            const share = total / potPeople.length;
+            const pot = {
+                id: Date.now(),
+                name,
+                total,
+                people: potPeople.map(p => ({ name: p, share })),
+                date: new Date().toISOString()
+            };
+
+            pots.unshift(pot);
+            localStorage.setItem('prismPayPots', JSON.stringify(pots));
+
+            // Reset form
+            document.getElementById('potName').value = '';
+            document.getElementById('potTotal').value = '';
+            potPeople = [];
+            renderPotPeopleTags();
+            renderPots();
+        }
+
+        function deletePot(id) {
+            pots = pots.filter(p => p.id !== id);
+            localStorage.setItem('prismPayPots', JSON.stringify(pots));
+            renderPots();
+        }
+
+        function renderPots() {
+            const list = document.getElementById('potsList');
+
+            if (pots.length === 0) {
+                list.innerHTML = `
+                    <div class="pots-empty" id="potsEmpty">
+                        <div class="pots-empty-icon">🎯</div>
+                        <p>No group pots yet. Split a bill above!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = pots.map(pot => {
+                const date = new Date(pot.date).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric'
+                });
+                const shares = pot.people.map(p => `
+                    <div class="pot-share-item">
+                        <span class="pot-share-name">${p.name}</span>
+                        <span class="pot-share-amount">$${p.share.toFixed(2)}</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="pot-item">
+                        <div class="pot-item-header">
+                            <div>
+                                <div class="pot-item-name">${pot.name}</div>
+                                <div class="pot-item-total">Total: <span>$${pot.total.toFixed(2)}</span> &middot; ${pot.people.length} people &middot; ${date}</div>
+                            </div>
+                            <button class="pot-delete-btn" onclick="deletePot(${pot.id})">×</button>
+                        </div>
+                        <div class="pot-shares">${shares}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('prismPayTransactions', JSON.stringify(transactions));
+        }
+    </script>
+</body>
+</html>
