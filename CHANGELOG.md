@@ -2,11 +2,51 @@
 
 All notable changes to Prism Pay will be documented in this file.
 
+## [1.2.0] - 2026-03-02
+
+### 🎯 Firestore Group Pots & Invite Friends
+
+**Live at:** https://taynazdev.github.io/PrismVault
+
+#### Added
+- Group Pots now stored in Firebase Firestore under each user's UID
+- "Invite Friends" email input on pot creation form
+- Email resolution against Firestore `users` collection — matched accounts get shared access
+- Real-time pot sync via Firestore `onSnapshot` listener
+- Owner / member badges on each pot card
+- Owner can delete pot for all members; members can leave individually
+- Status messages for unresolved invite emails
+- Pots listener cleanup on sign-out
+- Guard against duplicate event listener binding on re-init
+
+#### Changed
+- Pots no longer use localStorage — fully backed by Firestore
+- `savePot()` wrapped in try/catch/finally for error resilience
+- Auth toggle refactored to avoid recursive `arguments.callee` handler bugs
+
+---
+
+## [1.1.0] - 2026-03-02
+
+### 🔐 Firebase Authentication
+
+**Live at:** https://taynazdev.github.io/PrismVault
+
+#### Added
+- Firebase Authentication with email/password sign-in and sign-up
+- Auth screen with glassmorphism card, mode toggle, and error handling
+- User profile display in header with name and sign-out button
+- All dashboard content gated behind authentication
+- User UID written to Firestore `users` collection on sign-in/sign-up
+- localStorage data scoped per user UID
+
+---
+
 ## [1.0.0] - 2026-03-02
 
 ### 🎉 Initial Release
 
-**Live at:** https://taynazdev.github.io/PrismPay
+**Live at:** https://taynazdev.github.io/PrismVault
 
 #### Added
 
@@ -78,5 +118,5 @@ All notable changes to Prism Pay will be documented in this file.
 - [ ] Multi-currency support
 - [ ] Expense tags and notes
 - [ ] Savings goals tracking
-- [ ] Cloud sync (Firebase/Supabase)
+- [ ] Sync transactions to Firestore
 - [ ] Mobile app (React Native)

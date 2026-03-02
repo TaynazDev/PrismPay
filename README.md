@@ -2,7 +2,7 @@
 
 A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track transactions, set spending limits, analyze spending patterns, and split bills with friends—all in one sleek app.
 
-🌐 **[Live Demo](https://taynazdev.github.io/PrismPay)**
+🌐 **[Live Demo](https://taynazdev.github.io/PrismVault)**
 
 ## Features
 
@@ -27,8 +27,10 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 🎯 **Group Pots / Bill Splitting**
 - Create named shared pots for group expenses
 - Add multiple people and automatically calculate equal shares
+- Invite friends by email — shared pots appear on their dashboard
+- Real-time sync via Firebase Firestore
+- Owner and member roles with shared deletion
 - View each person's share amount at a glance
-- Save multiple pots simultaneously
 
 🎨 **Design & UX**
 - Dark glassmorphism aesthetic with frosted glass cards
@@ -39,32 +41,41 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 - Fully responsive mobile design
 - Smooth count-up animations for balance numbers
 
+� **Authentication**
+- Firebase Authentication (email & password)
+- Sign up / sign in with user profile
+- User name displayed in header with sign-out button
+- All app content gated behind auth screen
+
 💾 **Data Persistence**
-- All data saved to browser localStorage
-- Transactions, budgets, and pots persist across sessions
-- No account needed
+- Transactions and budgets saved to scoped localStorage per user
+- Group Pots stored in Firebase Firestore with real-time sync
+- Data persists across sessions and devices (pots)
 
 ## Tech Stack
 
 - **HTML5** — Semantic markup
 - **CSS3** — Glassmorphism, animations, responsive grid
-- **Vanilla JavaScript** — No dependencies (except Chart.js)
+- **Vanilla JavaScript** — No frameworks
+- **Firebase Auth** — Email/password authentication
+- **Firebase Firestore** — Real-time shared Group Pots
 - **Chart.js** — Interactive donut chart
 - **Inter Font** — Clean sans-serif typography
-- **localStorage API** — Client-side data persistence
+- **localStorage API** — User-scoped client-side persistence
 
 ## Getting Started
 
-1. Visit [taynazdev.github.io/PrismPay](https://taynazdev.github.io/PrismPay)
-2. Start adding transactions
-3. Set a budget to track spending
-4. Create group pots to split bills
-5. All data is automatically saved locally
+1. Visit [taynazdev.github.io/PrismVault](https://taynazdev.github.io/PrismVault)
+2. Sign up with your email and password
+3. Start adding transactions
+4. Set a budget to track spending
+5. Create group pots and invite friends by email
+6. All data is automatically saved
 
 Or run locally:
 ```bash
 # Clone the repository
-git clone https://github.com/taynazdev/PrismPay.git
+git clone https://github.com/taynazdev/PrismVault.git
 
 # Open index.html in a browser
 open index.html

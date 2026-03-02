@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -86,6 +89,219 @@
             color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
             font-weight: 300;
+        }
+
+        /* Auth Screen */
+        .auth-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            background: #0a0a0f;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .auth-page.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 48px 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px rgba(244, 63, 110, 0.08);
+            animation: cardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 32px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .auth-form input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #f43f6e;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(244, 63, 110, 0.1);
+        }
+
+        .auth-form input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, #f43f6e 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(244, 63, 110, 0.25);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(244, 63, 110, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-toggle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #f43f6e;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .auth-toggle button:hover {
+            color: #3b82f6;
+        }
+
+        .auth-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Header with User Profile */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .header-branding {
+            text-align: center;
+            flex: 1;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sign-out-btn {
+            background: rgba(244, 63, 110, 0.1);
+            border: 1px solid rgba(244, 63, 110, 0.2);
+            color: #f43f6e;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .sign-out-btn:hover {
+            background: rgba(244, 63, 110, 0.2);
+            box-shadow: 0 0 12px rgba(244, 63, 110, 0.15);
         }
 
         /* Glass card */
@@ -523,6 +739,25 @@
             flex-wrap: wrap;
             gap: 8px;
             min-height: 24px;
+        }
+
+        .pot-invite-status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.55);
+            min-height: 16px;
+        }
+
+        .pot-member-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.75);
         }
 
         .pot-tag {
@@ -1156,12 +1391,44 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">$</div>
-            <h1>Prism Pay</h1>
-            <p class="tagline">Track your finances with clarity</p>
-        </header>
+    <!-- Auth Page -->
+    <div class="auth-page" id="authPage">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-logo">$</div>
+                <h2 class="auth-title" id="authTitle">Sign In</h2>
+                <p class="auth-subtitle">Manage your finances securely</p>
+                <div class="auth-error" id="authError"></div>
+                <form class="auth-form" id="authForm">
+                    <input type="text" id="authName" placeholder="Full Name" style="display: none;">
+                    <input type="email" id="authEmail" placeholder="Email address" required>
+                    <input type="password" id="authPassword" placeholder="Password" required>
+                    <button type="submit" class="auth-btn" id="authSubmitBtn">Sign In</button>
+                </form>
+                <div class="auth-toggle">
+                    Don't have an account? <button type="button" id="authToggleBtn">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard" style="display: none;">
+        <div class="container">
+            <!-- Header with User Profile -->
+            <div class="header-top">
+                <div class="header-branding">
+                    <header>
+                        <div class="logo">$</div>
+                        <h1>Prism Pay</h1>
+                        <p class="tagline">Track your finances with clarity</p>
+                    </header>
+                </div>
+                <div class="user-profile">
+                    <span class="user-name" id="userNameDisplay">User</span>
+                    <button class="sign-out-btn" id="signOutBtn">Sign Out</button>
+                </div>
+            </div>
 
         <!-- Dashboard Stats -->
         <div class="stats-grid">
@@ -1292,6 +1559,15 @@
                     </div>
                     <div class="pot-people-tags" id="potPeopleTags"></div>
                 </div>
+                <div class="form-group">
+                    <label>Invite Friends (Email)</label>
+                    <div class="pot-people-input-row">
+                        <input type="email" id="potInviteInput" placeholder="friend@email.com">
+                        <button class="pot-add-person-btn" id="potAddInviteBtn" type="button">+</button>
+                    </div>
+                    <div class="pot-people-tags" id="potInviteTags"></div>
+                    <div class="pot-invite-status" id="potInviteStatus"></div>
+                </div>
                 <button class="btn" id="potSaveBtn" type="button">Create Pot</button>
             </div>
             <div class="pots-list" id="potsList">
@@ -1321,7 +1597,154 @@
         </div>
     </div>
 
-    <!-- Floating Action Button -->
+    <script>
+        // ===== FIREBASE CONFIG =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJkHeGiSKVJlT08HRhG0KOGHmZl7c4ZEM",
+            authDomain: "prism-pay-a0cb8.firebaseapp.com",
+            projectId: "prism-pay-a0cb8",
+            storageBucket: "prism-pay-a0cb8.firebasestorage.app",
+            messagingSenderId: "903846097456",
+            appId: "1:903846097456:web:8fc4dcbb98ad6c3c9f71c5"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ===== AUTH STATE MANAGEMENT =====
+        let isSignUp = false;
+        let currentUser = null;
+
+        // Check existing auth state on load
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = { uid: user.uid, email: user.email, name: null };
+                const savedUser = JSON.parse(localStorage.getItem('prismPayUser')) || {};
+                currentUser.name = savedUser.name || user.displayName || user.email.split('@')[0];
+                localStorage.setItem('prismPayUser', JSON.stringify(currentUser));
+                await db.collection('users').doc(user.uid).set({
+                    uid: user.uid,
+                    name: currentUser.name,
+                    email: user.email,
+                    emailLower: (user.email || '').toLowerCase(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showDashboard();
+            } else {
+                if (typeof potsUnsubscribe === 'function') {
+                    potsUnsubscribe();
+                    potsUnsubscribe = null;
+                }
+                currentUser = null;
+                showAuthPage();
+            }
+        });
+
+        // ===== UI CONTROL =====
+        function showAuthPage() {
+            document.getElementById('authPage').classList.remove('hidden');
+            document.getElementById('dashboard').style.display = 'none';
+            resetAuthForm();
+        }
+
+        function showDashboard() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('userNameDisplay').textContent = currentUser.name;
+            setTimeout(() => {
+                if (typeof init === 'function') {
+                    init();
+                }
+            }, 0);
+        }
+
+        // ===== AUTH FORM HANDLERS =====
+        const authToggleWrapper = document.querySelector('.auth-toggle');
+
+        function renderAuthMode() {
+            const title = document.getElementById('authTitle');
+            const nameInput = document.getElementById('authName');
+            const submitBtn = document.getElementById('authSubmitBtn');
+
+            if (isSignUp) {
+                title.textContent = 'Sign Up';
+                nameInput.style.display = 'block';
+                nameInput.required = true;
+                submitBtn.textContent = 'Create Account';
+                authToggleWrapper.innerHTML = 'Already have an account? <button type="button" id="authToggleBtn">Sign In</button>';
+            } else {
+                title.textContent = 'Sign In';
+                nameInput.style.display = 'none';
+                nameInput.required = false;
+                submitBtn.textContent = 'Sign In';
+                authToggleWrapper.innerHTML = 'Don\'t have an account? <button type="button" id="authToggleBtn">Sign Up</button>';
+            }
+
+            document.getElementById('authToggleBtn').addEventListener('click', () => {
+                isSignUp = !isSignUp;
+                renderAuthMode();
+            });
+        }
+
+        renderAuthMode();
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value.trim();
+            const errorEl = document.getElementById('authError');
+            const submitBtn = document.getElementById('authSubmitBtn');
+
+            errorEl.classList.remove('show');
+            submitBtn.disabled = true;
+            submitBtn.textContent = isSignUp ? 'Creating...' : 'Signing in...';
+
+            try {
+                if (isSignUp) {
+                    if (!name) throw new Error('Please enter your name');
+                    const res = await auth.createUserWithEmailAndPassword(email, password);
+                    currentUser = { uid: res.user.uid, email, name };
+                    localStorage.setItem('prismPayUser', JSON.stringify(currentUser));
+                    await res.user.updateProfile({ displayName: name });
+                } else {
+                    const res = await auth.signInWithEmailAndPassword(email, password);
+                    currentUser = { uid: res.user.uid, email, name: res.user.displayName || email.split('@')[0] };
+                    localStorage.setItem('prismPayUser', JSON.stringify(currentUser));
+                }
+            } catch (error) {
+                let msg = error.message;
+                if (error.code === 'auth/email-already-in-use') msg = 'Email already in use';
+                if (error.code === 'auth/invalid-email') msg = 'Invalid email address';
+                if (error.code === 'auth/weak-password') msg = 'Password must be at least 6 characters';
+                if (error.code === 'auth/user-not-found') msg = 'Email not found';
+                if (error.code === 'auth/wrong-password') msg = 'Incorrect password';
+                errorEl.textContent = msg;
+                errorEl.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = isSignUp ? 'Create Account' : 'Sign In';
+            }
+        });
+
+        function resetAuthForm() {
+            document.getElementById('authForm').reset();
+            document.getElementById('authError').classList.remove('show');
+            isSignUp = false;
+            renderAuthMode();
+        }
+
+        document.getElementById('signOutBtn').addEventListener('click', async () => {
+            if (typeof potsUnsubscribe === 'function') {
+                potsUnsubscribe();
+                potsUnsubscribe = null;
+            }
+            await auth.signOut();
+            localStorage.removeItem('prismPayUser');
+        });
+
+    </script>
+    
     <button class="fab" id="fabButton" aria-label="Quick Add Transaction">+</button>
 
     <!-- Quick Add Modal -->
@@ -1365,28 +1788,27 @@
     </div>
 
     <script>
-        // State
-        let transactions = JSON.parse(localStorage.getItem('prismPayTransactions')) || [];
-        let currentFilter = 'all';
+        // ===== SCOPED LOCALSTORAGE HELPERS =====
+        function getScopedKey(key) {
+            if (!currentUser) return key;
+            return `${key}_${currentUser.uid}`;
+        }
 
-        // DOM Elements
-        const form = document.getElementById('transactionForm');
-        const transactionsList = document.getElementById('transactionsList');
-        const totalBalanceEl = document.getElementById('totalBalance');
-        const totalIncomeEl = document.getElementById('totalIncome');
-        const totalExpenseEl = document.getElementById('totalExpense');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const fabButton = document.getElementById('fabButton');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modal = document.getElementById('modal');
-        const modalClose = document.getElementById('modalClose');
-        const quickAddForm = document.getElementById('quickAddForm');
-        const typeOptions = document.querySelectorAll('.type-option');
+        // State (initialized in init())
+        let transactions = [];
+        let currentFilter = 'all';
         let selectedQuickType = 'expense';
         let spendingChart = null;
-        let budget = JSON.parse(localStorage.getItem('prismPayBudget')) || null;
-        let pots = JSON.parse(localStorage.getItem('prismPayPots')) || [];
+        let budget = null;
+        let pots = [];
         let potPeople = [];
+        let potInviteEmails = [];
+        let potsUnsubscribe = null;
+        let listenersBound = false;
+
+        // DOM Elements
+        let form, transactionsList, totalBalanceEl, totalIncomeEl, totalExpenseEl, filterButtons;
+        let fabButton, modalOverlay, modal, modalClose, quickAddForm, typeOptions;
 
         // Chart gradient color palette (reddish-pink → blue)
         const chartColors = [
@@ -1402,19 +1824,38 @@
             '#fb7185'
         ];
 
-        // Initialize
-        init();
+        // Initialize only after auth state is checked (called from showDashboard())
 
         function init() {
+            // Initialize DOM elements
+            form = document.getElementById('transactionForm');
+            transactionsList = document.getElementById('transactionsList');
+            totalBalanceEl = document.getElementById('totalBalance');
+            totalIncomeEl = document.getElementById('totalIncome');
+            totalExpenseEl = document.getElementById('totalExpense');
+            filterButtons = document.querySelectorAll('.filter-btn');
+            fabButton = document.getElementById('fabButton');
+            modalOverlay = document.getElementById('modalOverlay');
+            modal = document.getElementById('modal');
+            modalClose = document.getElementById('modalClose');
+            quickAddForm = document.getElementById('quickAddForm');
+            typeOptions = document.querySelectorAll('.type-option');
+
+            // Load user data with scope
+            transactions = JSON.parse(localStorage.getItem(getScopedKey('prismPayTransactions'))) || [];
+            budget = JSON.parse(localStorage.getItem(getScopedKey('prismPayBudget'))) || null;
+            pots = [];
+
             renderTransactions();
             updateSummary(true);
             renderChart();
             renderBudget();
-            renderPots();
+            subscribeToMemberPots();
             setupEventListeners();
         }
 
         function setupEventListeners() {
+            if (listenersBound) return;
             form.addEventListener('submit', handleAddTransaction);
             
             filterButtons.forEach(btn => {
@@ -1456,7 +1897,12 @@
             document.getElementById('potPersonInput').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') { e.preventDefault(); addPotPerson(); }
             });
+            document.getElementById('potAddInviteBtn').addEventListener('click', addPotInviteEmail);
+            document.getElementById('potInviteInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); addPotInviteEmail(); }
+            });
             document.getElementById('potSaveBtn').addEventListener('click', savePot);
+            listenersBound = true;
         }
 
         function openModal() {
@@ -1615,6 +2061,9 @@
             }
         }
 
+        // Only init if user is logged in (checked by onAuthStateChanged)
+        // The init() call happens in showDashboard() after auth verifies user
+
         function renderChart() {
             const expenses = transactions.filter(t => t.type === 'expense');
             const chartEmpty = document.getElementById('chartEmpty');
@@ -1714,13 +2163,13 @@
             if (!amount || amount <= 0) return;
 
             budget = { amount, period };
-            localStorage.setItem('prismPayBudget', JSON.stringify(budget));
+            localStorage.setItem(getScopedKey('prismPayBudget'), JSON.stringify(budget));
             renderBudget();
         }
 
         function resetBudget() {
             budget = null;
-            localStorage.removeItem('prismPayBudget');
+            localStorage.removeItem(getScopedKey('prismPayBudget'));
             document.getElementById('budgetAmount').value = '';
             renderBudget();
         }
@@ -1820,36 +2269,196 @@
             `).join('');
         }
 
-        function savePot() {
+        function addPotInviteEmail() {
+            const input = document.getElementById('potInviteInput');
+            const raw = input.value.trim();
+            if (!raw) return;
+
+            const email = raw.toLowerCase();
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById('potInviteStatus').textContent = 'Enter a valid email address.';
+                return;
+            }
+
+            if (email === (currentUser?.email || '').toLowerCase()) {
+                input.value = '';
+                return;
+            }
+
+            if (potInviteEmails.includes(email)) {
+                input.value = '';
+                return;
+            }
+
+            potInviteEmails.push(email);
+            input.value = '';
+            input.focus();
+            document.getElementById('potInviteStatus').textContent = '';
+            renderPotInviteTags();
+        }
+
+        function removePotInviteEmail(index) {
+            potInviteEmails.splice(index, 1);
+            renderPotInviteTags();
+        }
+
+        function renderPotInviteTags() {
+            const container = document.getElementById('potInviteTags');
+            container.innerHTML = potInviteEmails.map((email, i) => `
+                <div class="pot-tag">
+                    ${email}
+                    <button class="pot-tag-remove" onclick="removePotInviteEmail(${i})">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        async function resolveInvitedUsersByEmail(emails) {
+            const matchedUsers = [];
+            const missingEmails = [];
+
+            for (const email of emails) {
+                const snap = await db
+                    .collection('users')
+                    .where('emailLower', '==', email.toLowerCase())
+                    .limit(1)
+                    .get();
+
+                if (snap.empty) {
+                    missingEmails.push(email);
+                    continue;
+                }
+
+                const doc = snap.docs[0];
+                const userData = doc.data() || {};
+                matchedUsers.push({
+                    uid: doc.id,
+                    email: userData.email || email,
+                    name: userData.name || (userData.email || email).split('@')[0]
+                });
+            }
+
+            return { matchedUsers, missingEmails };
+        }
+
+        async function savePot() {
             const name = document.getElementById('potName').value.trim();
             const total = parseFloat(document.getElementById('potTotal').value);
+            const saveBtn = document.getElementById('potSaveBtn');
+            const inviteStatus = document.getElementById('potInviteStatus');
 
             if (!name || !total || total <= 0 || potPeople.length === 0) return;
 
             const share = total / potPeople.length;
-            const pot = {
-                id: Date.now(),
-                name,
-                total,
-                people: potPeople.map(p => ({ name: p, share })),
-                date: new Date().toISOString()
-            };
 
-            pots.unshift(pot);
-            localStorage.setItem('prismPayPots', JSON.stringify(pots));
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
 
-            // Reset form
-            document.getElementById('potName').value = '';
-            document.getElementById('potTotal').value = '';
-            potPeople = [];
-            renderPotPeopleTags();
-            renderPots();
+            try {
+                const { matchedUsers, missingEmails } = await resolveInvitedUsersByEmail(potInviteEmails);
+
+                const membersByUid = new Map();
+                membersByUid.set(currentUser.uid, {
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    name: currentUser.name,
+                    role: 'owner'
+                });
+
+                matchedUsers.forEach(user => {
+                    if (!membersByUid.has(user.uid)) {
+                        membersByUid.set(user.uid, { ...user, role: 'member' });
+                    }
+                });
+
+                const members = Array.from(membersByUid.values());
+                const memberUids = members.map(member => member.uid);
+
+                const potId = db.collection('users').doc(currentUser.uid).collection('pots').doc().id;
+                const pot = {
+                    id: potId,
+                    name,
+                    total,
+                    people: potPeople.map(p => ({ name: p, share })),
+                    ownerUid: currentUser.uid,
+                    ownerName: currentUser.name,
+                    members,
+                    memberUids,
+                    invitedEmails: potInviteEmails,
+                    date: new Date().toISOString(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const batch = db.batch();
+                memberUids.forEach(uid => {
+                    const ref = db.collection('users').doc(uid).collection('pots').doc(potId);
+                    batch.set(ref, pot);
+                });
+
+                await batch.commit();
+
+                if (missingEmails.length > 0) {
+                    inviteStatus.textContent = `These emails were not found and were not added: ${missingEmails.join(', ')}`;
+                } else {
+                    inviteStatus.textContent = 'Pot shared successfully.';
+                }
+
+                // Reset form
+                document.getElementById('potName').value = '';
+                document.getElementById('potTotal').value = '';
+                potPeople = [];
+                potInviteEmails = [];
+                renderPotPeopleTags();
+                renderPotInviteTags();
+            } catch (error) {
+                inviteStatus.textContent = `Unable to save pot right now. ${error.message || ''}`.trim();
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Create Pot';
+            }
         }
 
-        function deletePot(id) {
-            pots = pots.filter(p => p.id !== id);
-            localStorage.setItem('prismPayPots', JSON.stringify(pots));
-            renderPots();
+        function subscribeToMemberPots() {
+            if (!currentUser) return;
+            if (potsUnsubscribe) {
+                potsUnsubscribe();
+                potsUnsubscribe = null;
+            }
+
+            potsUnsubscribe = db
+                .collection('users')
+                .doc(currentUser.uid)
+                .collection('pots')
+                .orderBy('date', 'desc')
+                .onSnapshot((snapshot) => {
+                    pots = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderPots();
+                }, () => {
+                    pots = [];
+                    renderPots();
+                });
+        }
+
+        async function deletePot(id) {
+            const pot = pots.find(p => p.id === id);
+            if (!pot || !currentUser) return;
+
+            if (pot.ownerUid !== currentUser.uid) {
+                await db.collection('users').doc(currentUser.uid).collection('pots').doc(id).delete();
+                return;
+            }
+
+            const memberUids = Array.isArray(pot.memberUids) && pot.memberUids.length > 0
+                ? pot.memberUids
+                : [currentUser.uid];
+
+            const batch = db.batch();
+            memberUids.forEach(uid => {
+                const ref = db.collection('users').doc(uid).collection('pots').doc(id);
+                batch.delete(ref);
+            });
+
+            await batch.commit();
         }
 
         function renderPots() {
@@ -1882,8 +2491,9 @@
                             <div>
                                 <div class="pot-item-name">${pot.name}</div>
                                 <div class="pot-item-total">Total: <span>$${pot.total.toFixed(2)}</span> &middot; ${pot.people.length} people &middot; ${date}</div>
+                                <div class="pot-member-badge">${pot.ownerUid === currentUser.uid ? 'Owner' : `Shared by ${pot.ownerName || 'a friend'}`}</div>
                             </div>
-                            <button class="pot-delete-btn" onclick="deletePot(${pot.id})">×</button>
+                            <button class="pot-delete-btn" onclick="deletePot('${pot.id}')">×</button>
                         </div>
                         <div class="pot-shares">${shares}</div>
                     </div>
@@ -1892,7 +2502,7 @@
         }
 
         function saveTransactions() {
-            localStorage.setItem('prismPayTransactions', JSON.stringify(transactions));
+            localStorage.setItem(getScopedKey('prismPayTransactions'), JSON.stringify(transactions));
         }
     </script>
 </body>
