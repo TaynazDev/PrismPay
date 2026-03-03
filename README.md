@@ -21,6 +21,21 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 - Filter transactions by type (All, Income, Expenses)
 - Delete individual transactions
 - Sorted by most recent first
+- Emoji reactions on transactions (💀😭👀🤑😂) — synced to Firestore when signed in
+- Attach receipt images (JPEG/PNG, max 2 MB) — stored as base64 with thumbnail preview and fullscreen lightbox
+
+🔍 **Search & Filter Bar**
+- Real-time text search filters by description, note, or category
+- Category dropdown filter populated dynamically from all default + custom categories
+- Date range dropdown: This Week, This Month, Last Month, All Time
+- Type toggle: All / Income / Expenses
+- All filters combine simultaneously for precise results
+- Smooth fade transition animation on list updates
+
+📤 **Export Data**
+- Export CSV with all transactions (Date, Amount, Type, Category, Note)
+- Download PDF Report — branded A4 document with summary stats and full transaction table
+- PDF includes header, income/expense/net totals, top spending category, paginated table with alternating row shading
 
 📊 **Budget Tracking**
 - Set weekly or monthly spending limits
@@ -28,6 +43,13 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 - Automatic warnings at 80% capacity (orange) and when exceeded (red)
 - Spending streak rewards consecutive days of staying under budget
 - Real-time budget status updates
+- Dismissable warning banners at 80% and 100%+ thresholds with overspend amounts
+- Browser push notifications for budget threshold alerts (with polite permission prompt)
+
+💤 **Inactivity Nudge**
+- Friendly card appears when no transactions have been logged for 3+ days
+- Dynamic message adapts at 3 days and 7+ days with exact day count
+- Dismissable with 3-day cooldown via localStorage
 
 🔥 **Spending Streak**
 - Tracks consecutive days you stay under your daily budget average
@@ -47,7 +69,16 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 - Amber/orange gradient accent with crown emoji
 - Updates dynamically whenever transactions change
 
-📅 **Weekly Spending Report**
+�️ **Spending Heatmap**
+- Calendar grid view for the current month
+- Each day is a tile — color intensity reflects daily spending
+- Pink-to-blue gradient scale (more saturated = more spent)
+- Hover tooltip with exact amount and date
+- Today highlighted, future days dimmed, empty days as subtle glassmorphism tiles
+- "Less → More" legend bar
+- Pure CSS + JS, no extra libraries
+
+�📅 **Weekly Spending Report**
 - Dismissable banner shown every Monday
 - Summarizes last week's total spend, top category, biggest transaction
 - Budget comparison with over/under indicator
@@ -60,10 +91,35 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 - Real-time sync via Firebase Firestore
 - Owner and member roles with shared deletion
 - View each person's share amount at a glance
+- **Settle Up** button marks a pot as settled across all members
+- Green checkmark badge and settlement date shown after settling
+- "Who paid last" label records which member most recently settled
 
+⚙️ **Manage Categories**
+- Add custom categories with a name and emoji icon
+- Custom categories appear alongside defaults in the quick-add dropdown
+- Delete custom categories via × button (defaults are protected)
+- Duplicate names prevented (case-insensitive)
+- Saved to localStorage and auto-synced with the quick-add modal
+
+🎛️ **Dashboard Widget Settings**
+- Toggle individual dashboard cards on/off (Balance, Budget, Chart, Streak, Splurge, Treat, Report)
+- States saved to localStorage — hidden widgets fully removed from layout
+
+👤 **User Profile**
+- Profile setup modal after first sign-in for display name and avatar
+- 8 emoji avatar options (👾 🔥 🚀 💎 🌈 🐱 🧊 ✨)
+- Avatar and name shown in nav bar — click to edit anytime
+- Profile data saved to Firebase Firestore for cross-device persistence
+
+🛒 **"You Could Have Bought..." Card**
+- Fun comparison card showing what your monthly spending could have bought
+- 18 relatable presets (Spotify, burritos, cinema tickets, lattes, etc.)
+- Random comparison on each page load
 🎨 **Design & UX**
 - Dark glassmorphism aesthetic with frosted glass cards
 - Gradient accent color scheme (#f43f6e → #3b82f6)
+- Custom app icon as favicon and navbar logo
 - Staggered entrance animations on page load
 - Smooth modal transitions with spring easing
 - Hover states with soft gradient glows
@@ -95,6 +151,7 @@ A beautiful, modern budget tracker with a dark glassmorphism aesthetic. Track tr
 - **Firebase Auth** — Email/password authentication
 - **Firebase Firestore** — Real-time shared Group Pots
 - **Chart.js** — Interactive donut chart
+- **jsPDF** — PDF report generation
 - **Inter Font** — Clean sans-serif typography
 - **localStorage API** — Client-side persistence
 

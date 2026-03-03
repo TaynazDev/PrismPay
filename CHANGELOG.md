@@ -2,6 +2,234 @@
 
 All notable changes to Prism Vault will be documented in this file.
 
+## [1.19.0] - 2026-03-03
+
+### 📐 Layout Consistency & Content Container
+
+#### Changed
+- All page sections now sit inside a shared `max-width: 900px` centred container
+- Container uses flexbox column layout with a consistent `22px` gap between every section
+- Removed per-section `margin-bottom` in favour of the unified container gap
+- Header, stat cards, budget, treat yourself, heatmap, chart, savings goals, group pots, transactions, widget settings, categories, and theme picker all share the same constrained width
+- Nothing stretches edge-to-edge on desktop — only the background is full-width
+- Mobile (≤ 640px): container is 100% width with `16px` side padding and `18px` gap
+- Small screens (≤ 390px): container tightens to `12px` side padding and `16px` gap
+- No changes to colours, fonts, glassmorphism, or component-level styling
+
+---
+
+## [1.18.0] - 2026-03-03
+
+### 🔍 Transaction Search & Filter Bar
+
+#### Added
+- Real-time text search input that filters by transaction description, note, or category
+- Category dropdown filter populated dynamically from all used categories (default + custom)
+- Date range dropdown: This Week, This Month, Last Month, All Time
+- Type toggle buttons (All / Income / Expenses) replacing old filter-btn pills
+- All filters work simultaneously — text + category + date + type combine for precise results
+- Smooth fade-out / fade-in animation when the transaction list updates
+- Empty state message adapts: different text when no transactions exist vs. no matches
+- Search bar styled with glassmorphism aesthetic matching the app design
+
+---
+
+## [1.17.0] - 2026-03-03
+
+### 🧾 Attach Receipt to Transactions
+
+#### Added
+- "Attach Receipt" button (📎) on each transaction in the history list
+- Opens native file picker accepting JPEG and PNG images (max 2 MB)
+- Converts uploaded image to base64 and stores it alongside the transaction in localStorage
+- Small thumbnail preview replaces the attach button once a receipt is saved
+- Clicking the thumbnail opens a fullscreen glassmorphism lightbox with the receipt image
+- Lightbox closes on click-outside, close button, or pressing the × button
+- Smooth zoom and hover effects on thumbnails for polished UX
+
+---
+
+## [1.16.0] - 2026-03-03
+
+### 🎨 App Logo & Favicon
+
+#### Added
+- `PrismVaultAppIcon.jpeg` set as browser tab favicon and Apple touch icon
+- Navbar SVG logo replaced with the actual app icon image (36×36px rounded square)
+- "Prism" text retains its gradient styling, "Vault" stays white
+- Responsive sizing: logo scales down gracefully across all breakpoints (32px → 26px)
+- Image rendered with `border-radius` and subtle box-shadow for polished look
+
+---
+
+## [1.15.0] - 2026-03-03
+
+### 📤 Export to CSV & Download PDF Report
+
+#### Added
+- "Export CSV" button in the Transactions section header with a download icon
+- Generates a CSV file containing Date, Amount, Type, Category, and Note for every transaction
+- Automatic browser download named `prism-vault-export-[month]-[year].csv`
+- Pure JavaScript implementation using Blob and URL.createObjectURL — no external libraries
+- Notes are properly escaped with double-quote wrapping for CSV compatibility
+- "PDF Report" button alongside the CSV button with a document icon
+- Generates a styled A4 PDF of the current month’s transactions via jsPDF (CDN)
+- PDF features a branded PrismVault header with gradient-colored title
+- Summary section shows total income, total expenses, net balance, and top spending category
+- Full transaction table with alternating row shading and color-coded amounts (green/red)
+- Pagination with footer on every page showing report month and page numbers
+- Automatic download as `prism-vault-[month]-[year].pdf`
+- Both buttons styled with glassmorphism hover glow and responsive layout
+
+---
+
+## [1.14.1] - 2026-03-03
+
+### 💤 Inactivity Nudge
+
+#### Added
+- Friendly dismissable card appears when no transactions have been logged for 3+ days
+- Dynamic message adapts: "don't fall behind" at 3 days, "don't lose track" at 7+ days with exact day count
+- Glassmorphism card with amber accent border and smooth slide-in animation
+- Dismiss on click hides the nudge and sets a 3-day cooldown before it can reappear
+- Cooldown stored in localStorage so the nudge doesn't nag after dismissal
+- Calculates inactivity gap from the most recent transaction date in localStorage
+- Brand-new users (no transactions yet) get a grace period — nudge won't appear until 3 days after first visit
+
+---
+
+## [1.14.0] - 2026-03-03
+
+### ⚠️ Budget Warning System
+
+#### Added
+- Dismissable warning banner at the top of the dashboard when spending reaches 80% of the set budget
+- Orange glassmorphism banner with warning icon at the 80% threshold, showing remaining budget
+- Red glassmorphism banner with stronger alert at 100%+ threshold, showing overspend amount
+- Banner automatically re-appears with upgraded severity if spending crosses from warning to danger
+- Dismiss state persisted per-session (sessionStorage) — resets each visit so users stay informed
+- Browser Notification API integration: push notifications sent for each threshold level (once per session)
+- Polite notification permission prompt on first load with "Enable" / "Not now" buttons
+- Permission prompt only shown when browser supports Notification API and permission is still `default`
+- Smooth slide-in animation for both the banner and the notification prompt
+
+---
+## [1.13.0] - 2026-03-03
+
+### 🎛️ Dashboard Widget Settings
+
+#### Added
+- New "Dashboard Widgets" settings section for toggling individual dashboard cards on/off
+- Toggleable widgets: Balance, Budget Progress, Spending Chart, Streak, Biggest Splurge, Treat Yourself Fund, and Weekly Report
+- Toggle states saved to localStorage and persist across sessions
+- Smooth fade-in animation when widgets are re-enabled
+- Reuses existing glassmorphism toggle switch design for consistency
+- Hidden widgets are fully removed from layout (no empty gaps)
+
+---
+## [1.13.1] - 2026-03-03
+
+### 🤝 Settle Up for Group Pots
+
+#### Added
+- "Settle Up" button on each Group Pot card — marks the pot as settled across all members
+- Green checkmark badge replaces the button once settled, visible to all pot members in real time
+- Settlement date logged and displayed below the badge ("Settled on Mar 3, 2026")
+- "Who paid last" label shows the name of the member who most recently settled the pot
+- Settle status synced to Firebase Firestore via batch write to all member sub-collections
+- Settled pots get a subtle green border highlight
+- Optimistic local update if Firestore write fails (graceful offline support)
+
+---
+
+## [1.12.0] - 2026-03-03
+
+### 👤 User Profile Page
+
+#### Added
+- Profile setup modal prompts after first sign-in for display name and avatar
+- 8 illustrated emoji avatar options: 👾 🔥 🚀 💎 🌈 🐱 🧊 ✨
+- Avatar and display name shown in the top nav bar next to Sign Out
+- Clicking the nav avatar re-opens the profile editor to update name/avatar anytime
+- Profile data (name, avatar) saved to Firebase Firestore under the user's UID
+- Skip option for users who want to set up later (defaults to 👾)
+- Glassmorphism profile card with gradient heading, avatar selection grid, and animated transitions
+- Profile loads from Firestore on sign-in for cross-device persistence
+- Firebase Auth displayName kept in sync with profile changes
+
+---
+
+## [1.11.0] - 2026-03-03
+
+### ⚙️ Manage Categories
+
+#### Added
+- New "Manage Categories" settings section on the dashboard
+- Users can add custom categories with a name and emoji icon
+- Custom categories appear alongside defaults in the quick-add modal dropdown
+- Deletion of custom categories via × button on each chip (defaults are protected)
+- Visual chip display of all categories: defaults shown dimmed, custom shown with delete button
+- "Defaults" and "Custom" labelled sections for clear separation
+- Category name input with Enter key support for quick adding
+- Emoji input field with placeholder fallback (🏷️) when left empty
+- Duplicate category names prevented (case-insensitive check across defaults + custom)
+- Custom categories saved to localStorage (`prismPayCustomCategories`)
+- Dropdown auto-rebuilds on add/delete to keep quick-add modal in sync
+- Glassmorphism card with consistent app styling
+
+---
+
+## [1.10.0] - 2026-03-03
+
+### 😂 Emoji Reactions on Transactions
+
+#### Added
+- Reaction button on every transaction in the history list
+- Tap the 😀 button to open a floating picker with 5 emojis: 💀😭👀🤑😂
+- Selected emoji displays inline next to the transaction amount
+- Tap the same emoji again to remove it (toggle behavior)
+- Clicking outside the picker automatically closes it
+- Glassmorphism-styled picker with blur backdrop and pop-in animation
+- Firebase integration: when logged in, reactions sync to Firestore per user (`users/{uid}/transactionReactions/{txId}`) for future shared-pot visibility
+- Falls back to localStorage for offline / anonymous users
+
+---
+
+## [1.9.0] - 2026-03-03
+
+### 🛒 "You Could Have Bought..." Card
+
+#### Added
+- Fun "You could have bought..." comparison card on the dashboard
+- Takes total monthly spending and divides by fun preset prices
+- 18 relatable presets: Spotify, Chipotle burritos, cinema tickets, Uber rides, lattes, pizzas, books, indie games, bubble teas, and more
+- Picks a random comparison on each page load for variety
+- Glassmorphism card with purple-to-pink gradient accent
+- Shows count + item name with emoji, plus spending context line
+- Graceful empty state when no expenses logged yet
+- Updates dynamically on every transaction change
+
+---
+
+## [1.8.0] - 2026-03-02
+
+### 🗓️ Spending Heatmap
+
+#### Added
+- Calendar-grid spending heatmap for the current month
+- Each day rendered as a small square tile with intensity based on daily spending
+- Pink-to-blue gradient scale — darker/more saturated = more spent
+- Empty/no-spend days shown as dim glassmorphism tiles
+- Hover tooltip showing exact amount and date for each day
+- Today highlighted with a bright border ring
+- Future days dimmed out
+- "Less → More" legend bar with gradient swatches
+- Fully responsive — shrinks gracefully on mobile
+- Pure CSS + JavaScript, no extra libraries
+- Updates dynamically on every transaction change
+
+---
+
 ## [1.7.0] - 2026-03-02
 
 ### 👑 Biggest Splurge Stat Card
@@ -180,12 +408,28 @@ All notable changes to Prism Vault will be documented in this file.
 
 ## Future Roadmap
 
-- [ ] Export data as CSV
-- [ ] Monthly spending trends chart
-- [ ] Recurring transaction templates
+- [x] Export data as CSV
+- [x] Recurring transaction templates
+- [x] Monthly spending trends chart
 - [ ] Dark/Light theme toggle
 - [ ] Multi-currency support
 - [ ] Expense tags and notes
 - [ ] Savings goals tracking
 - [ ] Sync transactions to Firestore
 - [ ] Mobile app (React Native)
+- [ ] Browser notifications for budget alerts
+- [ ] AI-powered spending insights and tips
+- [x] User authentication and profiles
+- [x] Group expense sharing and bill splitting
+- [x] Receipt photo attachments to transactions
+- [x] Inactivity nudges to encourage logging transactions
+- [x] Weekly spending report banner
+- [x] "You could have bought..." fun comparison card
+- [x] Spending heatmap calendar view
+- [x] Biggest splurge stat card
+- [ ] Custom category management
+- [ ] Dashboard widget settings for toggling cards on/off
+- [x] Emoji reactions on transactions
+- [x] User profile page with avatar selection
+- [x] App logo and favicon
+- [x] "Settle Up" button for Group Pots with real-time sync and "Who paid last" label
