@@ -2,6 +2,21 @@
 
 All notable changes to Prism Vault will be documented in this file.
 
+## [2.0.0] - 2026-03-03
+
+### 📐 Layout Structure Overhaul
+
+#### Fixed
+- Removed two stray `</div>` closing tags after the Treat Yourself section that prematurely closed the `.container` and `.dashboard` wrappers
+- All sections from "You Could Have Bought" through Currency selector were previously **outside** the centred `.container` — they now sit correctly inside it
+- Every page section (stat cards, streak, budget, treat, coulda-bought, heatmap, charts, savings goals, group pots, transactions, leaderboard, widget settings, categories, theme picker, currency) shares the same `max-width: 900px` centred column layout
+- Verified all 18 sections fall within the single `.container` div (lines 4465–4953)
+- Dashboard and container `<div>` nesting is now fully balanced (depth 0 at both closing tags)
+- No conflicting `width: 100vw`, `max-width: 100%`, or `position: fixed/absolute` on section containers — no additional CSS removal needed
+- No changes to colours, glassmorphism styling, fonts, or functionality
+
+---
+
 ## [1.20.0] - 2026-03-03
 
 ### 💱 Currency Selector & Multi-Currency Support
