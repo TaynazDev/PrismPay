@@ -1818,6 +1818,87 @@
             color: #f87171;
         }
 
+        /* ── Budget Recurring Toggle Row ── */
+        .budget-recurring-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 0 4px;
+            margin-bottom: 4px;
+        }
+
+        .budget-setup + .budget-recurring-row {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin-top: 4px;
+        }
+
+        .budget-recurring-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .budget-recurring-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .budget-recurring-hint {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.38);
+            display: none;
+        }
+
+        .budget-recurring-row.disabled-row {
+            opacity: 0.4;
+        }
+
+        .budget-recurring-row.disabled-row .toggle-slider {
+            cursor: not-allowed;
+        }
+
+        .budget-recurring-row.disabled-row .toggle-switch input {
+            pointer-events: none;
+        }
+
+        .budget-recurring-row.disabled-row .budget-recurring-hint {
+            display: block;
+        }
+
+        /* ── Budget Spending Breakdown ── */
+        .budget-breakdown {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .budget-breakdown.visible {
+            display: flex;
+        }
+
+        .budget-breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .budget-breakdown-row.total {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 4px;
+            padding-top: 7px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+
         /* ── Budget Warning Banner ── */
         .budget-banner {
             display: none;
@@ -4605,6 +4686,19 @@
                 </div>
                 <button class="btn-sm" id="budgetSaveBtn">Set Budget</button>
             </div>
+
+            <!-- Include Recurring Payments Toggle -->
+            <div class="budget-recurring-row" id="budgetRecurringRow">
+                <div class="budget-recurring-info">
+                    <span class="budget-recurring-label">Include Recurring Payments</span>
+                    <span class="budget-recurring-hint" id="budgetRecurringHint">Not available for weekly budgets</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="budgetIncludeRecurring">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
             <div class="budget-progress-area" id="budgetProgressArea">
                 <div class="budget-meta">
                     <div class="budget-spent" id="budgetSpentText">$0.00 <span class="budget-of">of $0.00</span></div>
@@ -4615,6 +4709,7 @@
                 </div>
                 <div class="budget-percent" id="budgetPercentText">0% used</div>
                 <div class="budget-warning" id="budgetWarning"></div>
+                <div class="budget-breakdown" id="budgetBreakdown"></div>
                 <button class="budget-reset" id="budgetResetBtn">Change Budget</button>
             </div>
         </div>
@@ -5388,6 +5483,7 @@
         let listenersBound = false;
         let customCategories = [];
         let savingsGoals = [];
+        let includeRecurring = false;
 
         // Default categories (cannot be deleted)
         const defaultCategories = [
@@ -5938,6 +6034,7 @@
             treatPot = JSON.parse(localStorage.getItem(getScopedKey('prismPayTreat'))) || null;
             customCategories = JSON.parse(localStorage.getItem(getScopedKey('prismPayCustomCategories'))) || [];
             savingsGoals = JSON.parse(localStorage.getItem(getScopedKey('prismPaySavingsGoals'))) || [];
+            includeRecurring = localStorage.getItem('pv_include_recurring') === 'true';
             pots = [];
 
             // Bind event listeners FIRST so the UI is always interactive,
@@ -6053,6 +6150,16 @@
             document.getElementById('budgetSaveBtn').addEventListener('click', saveBudget);
             document.getElementById('budgetResetBtn').addEventListener('click', resetBudget);
             document.getElementById('budgetBannerDismiss').addEventListener('click', dismissBudgetBanner);
+
+            // Budget recurring toggle
+            document.getElementById('budgetIncludeRecurring').addEventListener('change', (e) => {
+                includeRecurring = e.target.checked;
+                localStorage.setItem('pv_include_recurring', includeRecurring.toString());
+                renderBudget();
+            });
+
+            // Budget period change → update toggle disabled state
+            document.getElementById('budgetPeriod').addEventListener('change', updateRecurringToggleState);
 
             document.getElementById('treatSaveBtn').addEventListener('click', saveTreat);
             document.getElementById('treatResetBtn').addEventListener('click', resetTreat);
@@ -6719,7 +6826,11 @@
         }
 
         function getSpendingInPeriod() {
-            if (!budget) return 0;
+            return getBudgetSpendingBreakdown().total;
+        }
+
+        function getBudgetSpendingBreakdown() {
+            if (!budget) return { regular: 0, recurring: 0, total: 0 };
 
             const now = new Date();
             let start;
@@ -6733,19 +6844,68 @@
                 start = new Date(now.getFullYear(), now.getMonth(), 1);
             }
 
-            return transactions
-                .filter(t => t.type === 'expense' && t.category !== 'Treat Yourself' && new Date(t.date) >= start)
+            const eligible = transactions.filter(
+                t => t.type === 'expense' &&
+                     t.category !== 'Treat Yourself' &&
+                     new Date(t.date) >= start
+            );
+
+            const regular = eligible
+                .filter(t => !t.recurring)
                 .reduce((sum, t) => sum + t.amount, 0);
+
+            const recurringSpend = eligible
+                .filter(t => !!t.recurring)
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            // Only add recurring to total when toggle is on AND period is monthly
+            const total = (includeRecurring && budget.period === 'monthly')
+                ? regular + recurringSpend
+                : regular;
+
+            return { regular, recurring: recurringSpend, total };
+        }
+
+        function updateRecurringToggleState() {
+            const row      = document.getElementById('budgetRecurringRow');
+            const checkbox = document.getElementById('budgetIncludeRecurring');
+            if (!row || !checkbox) return;
+
+            // Sync checkbox visual with current state
+            checkbox.checked = includeRecurring;
+
+            // Determine the active period
+            const period = budget
+                ? budget.period
+                : (document.getElementById('budgetPeriod')?.value || 'monthly');
+
+            if (period === 'weekly') {
+                row.classList.add('disabled-row');
+                checkbox.disabled = true;
+                // Force off when weekly
+                if (includeRecurring) {
+                    includeRecurring = false;
+                    checkbox.checked = false;
+                    localStorage.setItem('pv_include_recurring', 'false');
+                }
+            } else {
+                row.classList.remove('disabled-row');
+                checkbox.disabled = false;
+            }
         }
 
         function renderBudget() {
-            const setupEl = document.getElementById('budgetSetup');
+            const setupEl     = document.getElementById('budgetSetup');
             const progressArea = document.getElementById('budgetProgressArea');
-            const fill = document.getElementById('budgetProgressFill');
-            const spentText = document.getElementById('budgetSpentText');
+            const fill        = document.getElementById('budgetProgressFill');
+            const spentText   = document.getElementById('budgetSpentText');
             const periodLabel = document.getElementById('budgetPeriodLabel');
             const percentText = document.getElementById('budgetPercentText');
-            const warningEl = document.getElementById('budgetWarning');
+            const warningEl   = document.getElementById('budgetWarning');
+            const breakdownEl = document.getElementById('budgetBreakdown');
+
+            // Always sync the toggle state regardless of budget existence
+            updateRecurringToggleState();
 
             if (!budget) {
                 setupEl.style.display = 'flex';
@@ -6756,8 +6916,9 @@
             setupEl.style.display = 'none';
             progressArea.classList.add('active');
 
-            const spent = getSpendingInPeriod();
-            const pct = Math.min((spent / budget.amount) * 100, 100);
+            const breakdown = getBudgetSpendingBreakdown();
+            const spent     = breakdown.total;
+            const pct       = Math.min((spent / budget.amount) * 100, 100);
             const actualPct = (spent / budget.amount) * 100;
 
             spentText.innerHTML = `${getCurrencySymbol()}${spent.toFixed(2)} <span class="budget-of">of ${getCurrencySymbol()}${budget.amount.toFixed(2)}</span>`;
@@ -6779,6 +6940,31 @@
                 const remaining = budget.amount - spent;
                 warningEl.className = 'budget-warning over-80';
                 warningEl.innerHTML = `⚠ Heads up — only ${getCurrencySymbol()}${remaining.toFixed(2)} remaining in your budget.`;
+            }
+
+            // Spending breakdown (only when toggle on + monthly + has recurring spend)
+            if (breakdownEl) {
+                if (includeRecurring && budget.period === 'monthly' && breakdown.recurring > 0) {
+                    const sym = getCurrencySymbol();
+                    breakdownEl.className = 'budget-breakdown visible';
+                    breakdownEl.innerHTML = `
+                        <div class="budget-breakdown-row">
+                            <span>Regular spending</span>
+                            <span>${sym}${breakdown.regular.toFixed(2)}</span>
+                        </div>
+                        <div class="budget-breakdown-row">
+                            <span>Recurring payments</span>
+                            <span>${sym}${breakdown.recurring.toFixed(2)}</span>
+                        </div>
+                        <div class="budget-breakdown-row total">
+                            <span>Total</span>
+                            <span>${sym}${breakdown.total.toFixed(2)} of ${sym}${budget.amount.toFixed(2)}</span>
+                        </div>
+                    `;
+                } else {
+                    breakdownEl.className = 'budget-breakdown';
+                    breakdownEl.innerHTML = '';
+                }
             }
 
             // Update the top-of-dashboard warning banner + send notification

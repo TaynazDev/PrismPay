@@ -2,6 +2,32 @@
 
 All notable changes to Prism Vault will be documented in this file.
 
+## [2.1.0] - 2026-03-05
+
+### 📊 Budget — Include Recurring Payments Toggle
+
+#### Added
+- New **"Include Recurring Payments"** toggle in the Budget tab, displayed between the setup form and the progress area — always visible regardless of budget state
+- When toggled **on** (monthly budget only): recurring transactions are added to the current month's spending calculation and the progress bar reflects the combined total
+- **Spending breakdown** panel shown under the progress bar when toggle is on and recurring spend exists, breaking down:
+  - Regular spending: `[amount]`
+  - Recurring payments: `[amount]`
+  - Total: `[amount] of [limit]`
+- Toggle state persisted to `localStorage` as `pv_include_recurring`
+- `getBudgetSpendingBreakdown()` — new function returning `{ regular, recurring, total }` used by both `getSpendingInPeriod()` and `renderBudget()`
+- `updateRecurringToggleState()` — new helper that syncs the toggle's enabled/disabled state with the active budget period; called on render and on period-selector change
+
+#### Changed
+- `getSpendingInPeriod()` now delegates to `getBudgetSpendingBreakdown().total` (no behaviour change when toggle is off)
+- `renderBudget()` calls `updateRecurringToggleState()` on every render to keep the toggle UI in sync
+
+#### Behaviour
+- When period is **Weekly**: toggle is greyed out (`opacity: 0.4`, `cursor: not-allowed`), disabled, and shows muted hint text "Not available for weekly budgets". If it was previously on, it is forced off automatically
+- When period is **Monthly**: toggle is fully active and uses the pink-to-blue gradient when checked
+- Breakdown panel is hidden when toggle is off, period is weekly, or no recurring transactions exist in the current month
+
+---
+
 ## [2.0.6] - 2026-03-03
 
 ### 🪲 Quick-Add Modal Fixes
