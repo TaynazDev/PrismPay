@@ -4775,9 +4775,212 @@
             background: rgba(255, 255, 255, 0.02);
             border-color: rgba(255, 255, 255, 0.04);
         }
+
+        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           TOAST NOTIFICATIONS
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+        .toast-container {
+            position: fixed; bottom: 24px; left: 24px; z-index: 99999;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+        }
+        .toast {
+            background: rgba(18, 18, 28, 0.93); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #fff;
+            min-width: 220px; max-width: 320px; display: flex; align-items: center;
+            gap: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            opacity: 0; transform: translateX(-12px); pointer-events: all;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .toast.show { opacity: 1; transform: translateX(0); }
+        .toast.hide { opacity: 0; transform: translateX(-12px); }
+        .toast-success { border-color: rgba(34,197,94,0.45); background: rgba(6,22,10,0.95); }
+        .toast-error   { border-color: rgba(239,68,68,0.45);  background: rgba(22,6,6,0.95);  }
+        .toast-info    { border-color: rgba(var(--accent-1-rgb),0.38); }
+        .toast-icon    { font-size: 15px; flex-shrink: 0; }
+        @media (max-width: 480px) {
+            .toast-container { bottom: 80px; left: 12px; right: 12px; }
+            .toast { min-width: 0; max-width: 100%; }
+        }
+
+        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           ONBOARDING MODAL
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+        .onboarding-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+        }
+        .onboarding-overlay.active { opacity: 1; pointer-events: all; }
+        .onboarding-modal {
+            background: rgba(12,12,22,0.97); backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 24px; padding: 34px 30px 26px; max-width: 440px; width: 100%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+        }
+        .onboarding-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+        .onboarding-step-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 1.2px; text-transform: uppercase; }
+        .onboarding-dots { display: flex; gap: 7px; align-items: center; }
+        .onboarding-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.3s ease; }
+        .onboarding-dot.active { background: var(--accent-1); transform: scale(1.35); }
+        .onboarding-dot.done { background: rgba(var(--accent-1-rgb),0.45); }
+        .onboarding-step-icon { font-size: 40px; display: block; text-align: center; margin-bottom: 12px; }
+        .onboarding-step-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; text-align: center; }
+        .onboarding-step-desc { font-size: 13px; color: rgba(255,255,255,0.48); text-align: center; margin-bottom: 22px; line-height: 1.55; }
+        .onboarding-step-body .form-group { margin-bottom: 14px; }
+        .onboarding-step-body label { font-size: 13px; color: rgba(255,255,255,0.55); display: block; margin-bottom: 6px; }
+        .onboarding-step-body input,
+        .onboarding-step-body select {
+            width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px; padding: 11px 13px; color: #fff; font-family: 'Inter', sans-serif;
+            font-size: 14px; outline: none; transition: border-color 0.2s;
+        }
+        .onboarding-step-body input:focus,
+        .onboarding-step-body select:focus { border-color: rgba(var(--accent-1-rgb),0.6); }
+        .onboarding-step-body select option { background: #1a1a2e; }
+        .onboarding-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .onboarding-next-btn {
+            flex: 1; background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border: none; border-radius: 10px; color: #fff; font-family: 'Inter', sans-serif;
+            font-size: 14px; font-weight: 600; padding: 13px; cursor: pointer; transition: opacity 0.2s;
+        }
+        .onboarding-next-btn:hover { opacity: 0.88; }
+        .onboarding-skip-btn {
+            background: none; border: none; color: rgba(255,255,255,0.32); font-size: 13px;
+            font-family: 'Inter', sans-serif; cursor: pointer; padding: 8px 10px; transition: color 0.2s;
+        }
+        .onboarding-skip-btn:hover { color: rgba(255,255,255,0.6); }
+        @media (max-width: 480px) { .onboarding-modal { padding: 26px 18px 22px; } }
+
+        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           SMART TIP CARDS
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+        .tip-cards-area { display: flex; flex-direction: column; gap: 8px; }
+        .tip-card {
+            background: rgba(var(--accent-1-rgb),0.07); border: 1px solid rgba(var(--accent-1-rgb),0.22);
+            border-radius: 14px; padding: 13px 14px; display: flex; align-items: center; gap: 10px;
+            animation: cardEnter 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .tip-card-text { flex: 1; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+        .tip-card-action {
+            background: rgba(var(--accent-1-rgb),0.18); border: 1px solid rgba(var(--accent-1-rgb),0.38);
+            border-radius: 8px; color: var(--accent-1); font-size: 11px; font-weight: 600;
+            font-family: 'Inter', sans-serif; padding: 5px 10px; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+        }
+        .tip-card-action:hover { background: rgba(var(--accent-1-rgb),0.3); }
+        .tip-card-dismiss {
+            background: none; border: none; color: rgba(255,255,255,0.25); font-size: 18px;
+            cursor: pointer; padding: 2px 2px; transition: color 0.2s; flex-shrink: 0; line-height: 1;
+        }
+        .tip-card-dismiss:hover { color: rgba(255,255,255,0.65); }
+
+        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           COLLAPSIBLE SETTINGS SECTIONS
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+        .settings-card > h2.settings-card-title { margin-bottom: 2px; }
+        .settings-section { border-top: 1px solid rgba(255,255,255,0.07); }
+        .settings-section:first-of-type { border-top: none; margin-top: 14px; }
+        .settings-section-header {
+            display: flex; align-items: center; gap: 11px; padding: 15px 0;
+            cursor: pointer; user-select: none; transition: opacity 0.2s;
+        }
+        .settings-section-header:hover { opacity: 0.72; }
+        .settings-section-icon { font-size: 17px; }
+        .settings-section-title { font-size: 15px; font-weight: 600; flex: 1; color: rgba(255,255,255,0.88); }
+        .settings-section-chevron {
+            color: rgba(255,255,255,0.28); font-size: 12px; line-height: 1;
+            transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+        }
+        .settings-section-body {
+            overflow: hidden; max-height: 0; opacity: 0;
+            transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.24s ease;
+        }
+        .settings-section.open .settings-section-body { max-height: 2400px; opacity: 1; }
+        .settings-section.open .settings-section-chevron { transform: rotate(180deg); }
+        .settings-section-inner { padding-bottom: 20px; }
+        .settings-data-btns { display: flex; flex-direction: column; gap: 10px; }
+        .settings-profile-link {
+            font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 14px; line-height: 1.55;
+        }
+        .settings-subsection-title {
+            font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55);
+            margin: 16px 0 10px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .settings-reset-btn {
+            background: rgba(239,68,68,0.08) !important; border: 1px solid rgba(239,68,68,0.28) !important;
+            color: rgba(255,130,130,0.85) !important; -webkit-text-fill-color: rgba(255,130,130,0.85) !important;
+        }
+        .settings-reset-btn:hover { background: rgba(239,68,68,0.18) !important; }
+
+        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           CONTEXTUAL HELP TOOLTIPS
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+        .help-wrap { position: relative; display: inline-flex; align-items: center; }
+        .help-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 17px; height: 17px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.45); font-size: 9px; font-weight: 700;
+            cursor: pointer; margin-left: 6px; transition: all 0.2s; flex-shrink: 0;
+            line-height: 1; font-family: 'Inter', sans-serif;
+        }
+        .help-btn:hover {
+            border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.13);
+        }
+        .help-popover {
+            position: absolute; z-index: 8000; bottom: calc(100% + 8px); left: 50%;
+            transform: translateX(-50%) translateY(6px);
+            max-width: 240px; min-width: 180px; width: max-content;
+            background: rgba(12,12,22,0.97); backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 10px; padding: 10px 12px; font-size: 12px;
+            color: rgba(255,255,255,0.82); line-height: 1.6;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.5); pointer-events: none;
+            opacity: 0; transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .help-popover.visible {
+            opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: all;
+        }
+
+        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           KEYBOARD SHORTCUT HINT
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+        .kbd-hint {
+            text-align: center; font-size: 11px; color: rgba(255,255,255,0.23);
+            margin-top: 12px; line-height: 1.6;
+        }
+        .kbd {
+            display: inline-block; background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14); border-radius: 4px;
+            padding: 1px 5px; font-size: 10px; font-family: monospace; vertical-align: middle;
+        }
     </style>
 </head>
 <body>
+
+    <!-- ===== ONBOARDING WIZARD ===== -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-modal">
+            <div class="onboarding-header">
+                <span class="onboarding-step-label" id="onboardStepLabel">Step 1 of 3</span>
+                <div class="onboarding-dots">
+                    <div class="onboarding-dot active" id="onboardDot0"></div>
+                    <div class="onboarding-dot" id="onboardDot1"></div>
+                    <div class="onboarding-dot" id="onboardDot2"></div>
+                </div>
+            </div>
+            <div id="onboardStepContent"></div>
+            <div class="onboarding-actions">
+                <button class="onboarding-next-btn" id="onboardNextBtn">Continue &rarr;</button>
+                <button class="onboarding-skip-btn" id="onboardSkipBtn">Skip this step</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Auth Modal -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-container">
@@ -4927,13 +5130,16 @@
             </div>
         </div>
 
+        <!-- Smart tip cards -->
+        <div class="tip-cards-area" id="tipCardsArea"></div>
+
         <!-- Spending Streak -->
         <div class="streak-card" id="streakCard" data-widget="streak">
             <div class="streak-flame" id="streakFlame">🔥</div>
             <div class="streak-info">
                 <div class="streak-count-row">
                     <span class="streak-count" id="streakCount">0</span>
-                    <span class="streak-unit" id="streakUnit">day streak</span>
+                    <span class="streak-unit" id="streakUnit">day streak</span><span class="help-wrap" style="display:inline-flex;align-items:center"><button class="help-btn" type="button" aria-label="How is my streak calculated?">?</button><span class="help-popover">Your streak counts consecutive days you've logged at least one transaction and stayed within budget. It resets if you miss a day or go over budget.</span></span>
                 </div>
                 <div class="streak-message" id="streakMessage">Set a budget to start tracking your streak</div>
             </div>
@@ -4948,7 +5154,7 @@
                     <input type="number" id="budgetAmount" placeholder="e.g. 500" step="0.01" min="0">
                 </div>
                 <div class="form-group">
-                    <label for="budgetPeriod">Period</label>
+                    <label for="budgetPeriod">Period <span class="help-wrap" style="display:inline-flex;align-items:center"><button class="help-btn" type="button" aria-label="What's the difference between weekly and monthly?">?</button><span class="help-popover">Weekly resets every Monday. Monthly resets on the 1st of each month. Monthly is recommended for most people.</span></span></label>
                     <select id="budgetPeriod">
                         <option value="weekly">Weekly</option>
                         <option value="monthly" selected>Monthly</option>
@@ -5191,193 +5397,286 @@
             </div>
         </div>
 
-        <!-- Dashboard Widget Settings -->
-        <div class="glass-card widget-settings">
-            <h2>🛠️ Dashboard Widgets</h2>
-            <div class="widget-toggle-list" id="widgetToggleList">
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">💰</span>
-                        <span class="widget-toggle-name">Balance</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="balance" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+        <!-- ===== SETTINGS ===== -->
+        <div class="glass-card settings-card">
+            <h2 class="settings-card-title">⚙️ Settings</h2>
+
+            <!-- 👤 Profile -->
+            <div class="settings-section" id="settingsSectionProfile">
+                <div class="settings-section-header">
+                    <span class="settings-section-icon">👤</span>
+                    <span class="settings-section-title">Profile</span>
+                    <span class="settings-section-chevron">▼</span>
                 </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">🎯</span>
-                        <span class="widget-toggle-name">Budget Progress</span>
+                <div class="settings-section-body">
+                    <div class="settings-section-inner">
+                        <p class="settings-profile-link">Manage your name and avatar.</p>
+                        <button class="btn-sm" onclick="openProfileModal()" type="button">Edit Profile</button>
+                        <div class="settings-subsection-title">💱 Currency</div>
+                        <div class="currency-current" id="currencyCurrentDisplay">
+                            <span class="currency-current-flag" id="currencyCurrentFlag">🇺🇸</span>
+                            <span class="currency-current-label" id="currencyCurrentLabel">US Dollar</span>
+                            <span class="currency-current-code" id="currencyCurrentCode">USD</span>
+                        </div>
+                        <div class="currency-selector-wrap">
+                            <input type="text" class="currency-search-input" id="currencySearchInput" placeholder="Search currency..." autocomplete="off">
+                            <div class="currency-dropdown" id="currencyDropdown"></div>
+                        </div>
+                        <div class="currency-status" id="currencyStatus">
+                            <span class="currency-status-dot" id="currencyStatusDot"></span>
+                            <span class="currency-status-text" id="currencyStatusText"></span>
+                        </div>
                     </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="budget" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">📊</span>
-                        <span class="widget-toggle-name">Spending Chart</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="chart" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">🔥</span>
-                        <span class="widget-toggle-name">Streak</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="streak" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">🏆</span>
-                        <span class="widget-toggle-name">Biggest Splurge</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="splurge" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">🎉</span>
-                        <span class="widget-toggle-name">Treat Yourself Fund</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="treat" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">📋</span>
-                        <span class="widget-toggle-name">Weekly Report</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="report" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="widget-toggle-row">
-                    <div class="widget-toggle-info">
-                        <span class="widget-toggle-icon">🏦</span>
-                        <span class="widget-toggle-name">Savings Goals</span>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" data-widget-toggle="savings" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
                 </div>
             </div>
-        </div>
 
-        <!-- Manage Categories -->
-        <div class="glass-card categories-section">
-            <h2>⚙️ Manage Categories</h2>
-            <div class="categories-add-form">
-                <input type="text" id="catEmojiInput" class="cat-emoji-input" placeholder="🏷️" maxlength="2">
-                <input type="text" id="catNameInput" placeholder="Category name..." maxlength="24">
-                <button type="button" class="categories-add-btn" id="addCategoryBtn">+ Add</button>
-            </div>
-            <div class="categories-default-label">Defaults</div>
-            <div class="categories-list" id="defaultCategoriesList"></div>
-            <div class="categories-custom-label">Custom</div>
-            <div class="categories-list" id="customCategoriesList">
-                <div class="categories-empty">No custom categories yet.</div>
-            </div>
-        </div>
+            <!-- 🎨 Appearance -->
+            <div class="settings-section" id="settingsSectionAppearance">
+                <div class="settings-section-header">
+                    <span class="settings-section-icon">🎨</span>
+                    <span class="settings-section-title">Appearance</span>
+                    <span class="settings-section-chevron">▼</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="settings-section-inner">
+                        <div class="theme-grid" id="themeGrid">
 
-        <!-- Theme Picker -->
-        <div class="glass-card theme-picker-section">
-            <h2>🎨 Theme</h2>
-            <div class="theme-grid" id="themeGrid">
+                            <!-- Row 1: Classic pair -->
+                            <div class="theme-option active" data-theme="default">
+                                <div class="theme-preview">
+                                    <div class="theme-preview-btn" style="background: linear-gradient(135deg, #f43f6e, #3b82f6);"></div>
+                                    <div class="theme-preview-dot" style="background: linear-gradient(135deg, #f43f6e 50%, #3b82f6 50%);"></div>
+                                </div>
+                                <span class="theme-label">Classic</span>
+                            </div>
+                            <div class="theme-option" data-theme="muted-classic">
+                                <div class="theme-preview">
+                                    <div class="theme-preview-btn" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.12);"></div>
+                                    <div class="theme-preview-dot" style="background: #3a3a3a;"></div>
+                                </div>
+                                <span class="theme-label">Muted Classic</span>
+                            </div>
 
-                <!-- Row 1: Classic pair -->
-                <div class="theme-option active" data-theme="default">
-                    <div class="theme-preview">
-                        <div class="theme-preview-btn" style="background: linear-gradient(135deg, #f43f6e, #3b82f6);"></div>
-                        <div class="theme-preview-dot" style="background: linear-gradient(135deg, #f43f6e 50%, #3b82f6 50%);"></div>
+                            <!-- Row 2: Prismatic pair -->
+                            <div class="theme-option" data-theme="purple-cyan">
+                                <div class="theme-preview">
+                                    <div class="theme-preview-btn" style="background: linear-gradient(135deg, #a855f7, #06b6d4);"></div>
+                                    <div class="theme-preview-dot" style="background: linear-gradient(135deg, #a855f7 50%, #06b6d4 50%);"></div>
+                                </div>
+                                <span class="theme-label">Prismatic</span>
+                            </div>
+                            <div class="theme-option" data-theme="muted-prismatic">
+                                <div class="theme-preview">
+                                    <div class="theme-preview-btn" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.12);"></div>
+                                    <div class="theme-preview-dot" style="background: #3a3a3a;"></div>
+                                </div>
+                                <span class="theme-label">Muted Prismatic</span>
+                            </div>
+
+                            <!-- Row 3: Legality pair -->
+                            <div class="theme-option" data-theme="green-teal">
+                                <div class="theme-preview">
+                                    <div class="theme-preview-btn" style="background: linear-gradient(135deg, #22c55e, #14b8a6);"></div>
+                                    <div class="theme-preview-dot" style="background: linear-gradient(135deg, #22c55e 50%, #14b8a6 50%);"></div>
+                                </div>
+                                <span class="theme-label">Legality</span>
+                            </div>
+                            <div class="theme-option" data-theme="muted-legality">
+                                <div class="theme-preview">
+                                    <div class="theme-preview-btn" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.12);"></div>
+                                    <div class="theme-preview-dot" style="background: #3a3a3a;"></div>
+                                </div>
+                                <span class="theme-label">Muted Legality</span>
+                            </div>
+
+                        </div>
+
+                        <!-- Tone Down Colours toggle -->
+                        <div class="tone-down-row">
+                            <div class="tone-down-info">
+                                <span class="tone-down-label">Tone Down Colours</span>
+                                <span class="tone-down-desc">Keep the vibe, just softer</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toneDownToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
-                    <span class="theme-label">Classic</span>
                 </div>
-                <div class="theme-option" data-theme="muted-classic">
-                    <div class="theme-preview">
-                        <div class="theme-preview-btn" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.12);"></div>
-                        <div class="theme-preview-dot" style="background: #3a3a3a;"></div>
-                    </div>
-                    <span class="theme-label">Muted Classic</span>
-                </div>
-
-                <!-- Row 2: Prismatic pair -->
-                <div class="theme-option" data-theme="purple-cyan">
-                    <div class="theme-preview">
-                        <div class="theme-preview-btn" style="background: linear-gradient(135deg, #a855f7, #06b6d4);"></div>
-                        <div class="theme-preview-dot" style="background: linear-gradient(135deg, #a855f7 50%, #06b6d4 50%);"></div>
-                    </div>
-                    <span class="theme-label">Prismatic</span>
-                </div>
-                <div class="theme-option" data-theme="muted-prismatic">
-                    <div class="theme-preview">
-                        <div class="theme-preview-btn" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.12);"></div>
-                        <div class="theme-preview-dot" style="background: #3a3a3a;"></div>
-                    </div>
-                    <span class="theme-label">Muted Prismatic</span>
-                </div>
-
-                <!-- Row 3: Legality pair -->
-                <div class="theme-option" data-theme="green-teal">
-                    <div class="theme-preview">
-                        <div class="theme-preview-btn" style="background: linear-gradient(135deg, #22c55e, #14b8a6);"></div>
-                        <div class="theme-preview-dot" style="background: linear-gradient(135deg, #22c55e 50%, #14b8a6 50%);"></div>
-                    </div>
-                    <span class="theme-label">Legality</span>
-                </div>
-                <div class="theme-option" data-theme="muted-legality">
-                    <div class="theme-preview">
-                        <div class="theme-preview-btn" style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.12);"></div>
-                        <div class="theme-preview-dot" style="background: #3a3a3a;"></div>
-                    </div>
-                    <span class="theme-label">Muted Legality</span>
-                </div>
-
             </div>
 
-            <!-- Tone Down Colours toggle -->
-            <div class="tone-down-row">
-                <div class="tone-down-info">
-                    <span class="tone-down-label">Tone Down Colours</span>
-                    <span class="tone-down-desc">Keep the vibe, just softer</span>
+            <!-- 🛠️ Dashboard -->
+            <div class="settings-section" id="settingsSectionDashboard">
+                <div class="settings-section-header">
+                    <span class="settings-section-icon">🛠️</span>
+                    <span class="settings-section-title">Dashboard</span>
+                    <span class="settings-section-chevron">▼</span>
                 </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="toneDownToggle">
-                    <span class="toggle-slider"></span>
-                </label>
+                <div class="settings-section-body">
+                    <div class="settings-section-inner">
+                        <div class="widget-toggle-list" id="widgetToggleList">
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">💰</span>
+                                    <span class="widget-toggle-name">Balance</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="balance" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">🎯</span>
+                                    <span class="widget-toggle-name">Budget Progress</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="budget" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">📊</span>
+                                    <span class="widget-toggle-name">Spending Chart</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="chart" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">🔥</span>
+                                    <span class="widget-toggle-name">Streak</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="streak" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">🏆</span>
+                                    <span class="widget-toggle-name">Biggest Splurge</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="splurge" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">🎉</span>
+                                    <span class="widget-toggle-name">Treat Yourself Fund</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="treat" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">📋</span>
+                                    <span class="widget-toggle-name">Weekly Report</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="report" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-toggle-row">
+                                <div class="widget-toggle-info">
+                                    <span class="widget-toggle-icon">🏦</span>
+                                    <span class="widget-toggle-name">Savings Goals</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-widget-toggle="savings" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Currency Selector -->
-        <div class="glass-card currency-section">
-            <h2>💱 Currency</h2>
-            <div class="currency-current" id="currencyCurrentDisplay">
-                <span class="currency-current-flag" id="currencyCurrentFlag">🇺🇸</span>
-                <span class="currency-current-label" id="currencyCurrentLabel">US Dollar</span>
-                <span class="currency-current-code" id="currencyCurrentCode">USD</span>
+            <!-- 🏷️ Categories -->
+            <div class="settings-section" id="settingsSectionCategories">
+                <div class="settings-section-header">
+                    <span class="settings-section-icon">🏷️</span>
+                    <span class="settings-section-title">Categories</span>
+                    <span class="settings-section-chevron">▼</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="settings-section-inner">
+                        <div class="categories-add-form">
+                            <input type="text" id="catEmojiInput" class="cat-emoji-input" placeholder="🏷️" maxlength="2">
+                            <input type="text" id="catNameInput" placeholder="Category name..." maxlength="24">
+                            <button type="button" class="categories-add-btn" id="addCategoryBtn">+ Add</button>
+                        </div>
+                        <div class="categories-default-label">Defaults</div>
+                        <div class="categories-list" id="defaultCategoriesList"></div>
+                        <div class="categories-custom-label">Custom</div>
+                        <div class="categories-list" id="customCategoriesList">
+                            <div class="categories-empty">No custom categories yet.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="currency-selector-wrap">
-                <input type="text" class="currency-search-input" id="currencySearchInput" placeholder="Search currency..." autocomplete="off">
-                <div class="currency-dropdown" id="currencyDropdown"></div>
+
+            <!-- 🔔 Notifications -->
+            <div class="settings-section" id="settingsSectionNotifications">
+                <div class="settings-section-header">
+                    <span class="settings-section-icon">🔔</span>
+                    <span class="settings-section-title">Notifications</span>
+                    <span class="settings-section-chevron">▼</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="settings-section-inner">
+                        <p class="settings-profile-link">Get reminders to log your spending.</p>
+                        <div class="budget-recurring-row">
+                            <div class="budget-recurring-info">
+                                <span class="budget-recurring-label">Daily Reminder</span>
+                                <span class="budget-recurring-hint">9 AM nudge to log today's expenses</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifDailyToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="budget-recurring-row" style="margin-top: 10px;">
+                            <div class="budget-recurring-info">
+                                <span class="budget-recurring-label">Budget Alert</span>
+                                <span class="budget-recurring-hint">Warn when you hit 80% of your budget</span>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifBudgetToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="currency-status" id="currencyStatus">
-                <span class="currency-status-dot" id="currencyStatusDot"></span>
-                <span class="currency-status-text" id="currencyStatusText"></span>
+
+            <!-- 📤 Data -->
+            <div class="settings-section" id="settingsSectionData">
+                <div class="settings-section-header">
+                    <span class="settings-section-icon">📤</span>
+                    <span class="settings-section-title">Data</span>
+                    <span class="settings-section-chevron">▼</span>
+                </div>
+                <div class="settings-section-body">
+                    <div class="settings-section-inner">
+                        <div class="settings-data-btns">
+                            <button class="btn-sm" id="settingsExportCsvBtn" type="button">⬇️ Export CSV</button>
+                            <button class="btn-sm" id="settingsExportPdfBtn" type="button">📄 Download PDF Report</button>
+                            <button class="btn-sm settings-reset-btn" id="settingsResetBtn" type="button">🗑️ Reset All Data</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
         </div> <!-- /.container -->
     </div> <!-- /.dashboard -->
@@ -5387,6 +5686,7 @@
         <div class="currency-modal">
             <h3>💱 Change Currency</h3>
             <p id="currencyModalText"></p>
+            <p style="font-size:12px;color:rgba(255,255,255,0.45);margin:-4px 0 14px;line-height:1.6;"><strong style="color:rgba(255,255,255,0.7)">Convert figures</strong> recalculates all your amounts at the current exchange rate. <strong style="color:rgba(255,255,255,0.7)">Keep figures</strong> leaves the numbers unchanged and only swaps the currency symbol.</p>
             <div class="currency-modal-actions">
                 <button class="currency-modal-btn convert" id="currencyConvertBtn">Convert figures</button>
                 <button class="currency-modal-btn keep" id="currencyKeepBtn">Keep figures</button>
@@ -5737,6 +6037,9 @@
 
     </script>
     
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <button class="fab" id="fabButton" aria-label="Quick Add Transaction">+</button>
 
     <!-- Quick Add Modal -->
@@ -5788,6 +6091,7 @@
                     </label>
                 </div>
                 <button type="submit" class="btn">Add Transaction</button>
+                <div class="kbd-hint">Press <span class="kbd">N</span> to open &nbsp;&middot;&nbsp; <span class="kbd">Esc</span> to close &nbsp;&middot;&nbsp; <span class="kbd">S</span> for settings</div>
             </form>
         </div>
     </div>
@@ -6660,6 +6964,7 @@
             // Close and reset modal immediately after saving — before re-renders
             // so the modal always dismisses even if a render step throws
             closeModal();
+            showToast('Transaction added', 'success');
 
             // Update every dashboard section in real time
             renderTransactions();
@@ -6672,6 +6977,7 @@
             updateStreak();
             renderStreak();
             renderSavingsGoals();
+            checkSmartTips();
         }
 
         // ===== RECURRING TRANSACTIONS ENGINE =====
@@ -6734,6 +7040,8 @@
             renderTreat();
             updateStreak();
             renderStreak();
+            showToast('Transaction deleted', 'info');
+            checkSmartTips();
         }
 
         // ---- Search / Filter helpers ----
@@ -7211,6 +7519,8 @@
             renderBudget();
             updateStreak();
             renderStreak();
+            showToast('Budget saved 🎯', 'success');
+            checkSmartTips();
         }
 
         function resetBudget() {
@@ -7219,6 +7529,7 @@
             document.getElementById('budgetAmount').value = '';
             renderBudget();
             renderStreak();
+            showToast('Budget removed', 'info');
         }
 
         function getSpendingInPeriod() {
@@ -7488,6 +7799,7 @@
             treatPot = { amount };
             localStorage.setItem(getScopedKey('prismPayTreat'), JSON.stringify(treatPot));
             renderTreat();
+            showToast('Treat Yourself pot saved 🎉', 'success');
         }
 
         function resetTreat() {
@@ -7960,6 +8272,8 @@
                 } else {
                     inviteStatus.textContent = 'Pot shared successfully.';
                 }
+                showToast('Group pot created \ud83e\udd1d', 'success');
+                checkSmartTips();
 
                 // Reset form
                 document.getElementById('potName').value = '';
@@ -8590,6 +8904,8 @@
             savingsGoals.push(goal);
             saveSavingsGoals();
             renderSavingsGoals();
+            showToast('Goal created 🎯', 'success');
+            checkSmartTips();
 
             nameInput.value = '';
             targetInput.value = '';
@@ -8736,6 +9052,276 @@
 
         // Apply saved widget visibility on load (no animation)
         applyWidgetVisibility(false);
+
+        // ===== TOAST NOTIFICATIONS =====
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const icons = { success: '✅', error: '❌', info: '💡' };
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span class="toast-icon">${icons[type] || '💬'}</span><span>${escapeHTML(String(message))}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 400);
+            }, duration);
+        }
+
+        // ===== ONBOARDING WIZARD =====
+        let onboardStep = 0;
+        const ONBOARD_STEPS = [
+            {
+                icon: '👋',
+                title: 'Welcome to Prism Vault',
+                desc: "Let's get you set up in just a few seconds.",
+                html: `
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" id="onboardName" placeholder="e.g. Alex" maxlength="32">
+                    </div>
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <select id="onboardCurrency">
+                            <option value="USD">🇺🇸 US Dollar (USD)</option>
+                            <option value="GBP">🇬🇧 British Pound (GBP)</option>
+                            <option value="EUR">🇪🇺 Euro (EUR)</option>
+                            <option value="CAD">🇨🇦 Canadian Dollar (CAD)</option>
+                            <option value="AUD">🇦🇺 Australian Dollar (AUD)</option>
+                            <option value="JPY">🇯🇵 Japanese Yen (JPY)</option>
+                            <option value="INR">🇮🇳 Indian Rupee (INR)</option>
+                            <option value="SGD">🇸🇬 Singapore Dollar (SGD)</option>
+                            <option value="CHF">🇨🇭 Swiss Franc (CHF)</option>
+                            <option value="BRL">🇧🇷 Brazilian Real (BRL)</option>
+                            <option value="KRW">🇰🇷 South Korean Won (KRW)</option>
+                        </select>
+                    </div>`,
+                apply: () => {
+                    const name = document.getElementById('onboardName')?.value.trim();
+                    if (name) localStorage.setItem('pv_user_name', name);
+                    const code = document.getElementById('onboardCurrency')?.value;
+                    if (code && typeof ALL_CURRENCIES !== 'undefined') {
+                        const found = ALL_CURRENCIES.find(c => c.code === code);
+                        if (found) { localStorage.setItem('prismPayCurrency', JSON.stringify(found)); loadCurrencySettings(); }
+                    }
+                }
+            },
+            {
+                icon: '🎯',
+                title: 'Set a Monthly Budget',
+                desc: 'How much do you want to spend this month?',
+                html: `
+                    <div class="form-group">
+                        <label>Monthly Limit</label>
+                        <input type="number" id="onboardBudget" placeholder="e.g. 1500" step="0.01" min="0">
+                    </div>`,
+                apply: () => {
+                    const amount = parseFloat(document.getElementById('onboardBudget')?.value);
+                    if (amount && amount > 0) {
+                        budget = { amount, period: 'monthly' };
+                        localStorage.setItem(getScopedKey('prismPayBudget'), JSON.stringify(budget));
+                        renderBudget(); updateStreak(); renderStreak();
+                    }
+                }
+            },
+            {
+                icon: '💸',
+                title: 'Add Your First Transaction',
+                desc: "Log something you've spent money on recently.",
+                html: `
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="onboardAmount" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="onboardCategory">
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Subscriptions">Subscriptions</option>
+                            <option value="Going Out">Going Out</option>
+                            <option value="Clothes">Clothes</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Note (optional)</label>
+                        <input type="text" id="onboardNote" placeholder="e.g. Coffee at Costa" maxlength="60">
+                    </div>`,
+                apply: () => {
+                    const amount = parseFloat(document.getElementById('onboardAmount')?.value);
+                    if (amount && amount > 0) {
+                        const category = document.getElementById('onboardCategory')?.value || 'Other';
+                        const note = document.getElementById('onboardNote')?.value.trim();
+                        const tx = { id: Date.now(), description: note || category, amount, type: 'expense', category, date: new Date().toISOString() };
+                        transactions.unshift(tx);
+                        saveTransactions();
+                        renderTransactions(); updateSummary(false); renderChart(); renderBudget(); updateStreak(); renderStreak();
+                    }
+                }
+            }
+        ];
+
+        function renderOnboardStep(step) {
+            const data = ONBOARD_STEPS[step];
+            document.getElementById('onboardStepLabel').textContent = `Step ${step + 1} of ${ONBOARD_STEPS.length}`;
+            [0, 1, 2].forEach(i => {
+                const dot = document.getElementById(`onboardDot${i}`);
+                if (dot) dot.className = 'onboarding-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+            });
+            document.getElementById('onboardStepContent').innerHTML = `
+                <span class="onboarding-step-icon">${data.icon}</span>
+                <div class="onboarding-step-title">${data.title}</div>
+                <div class="onboarding-step-desc">${data.desc}</div>
+                <div class="onboarding-step-body">${data.html}</div>`;
+            document.getElementById('onboardNextBtn').textContent = step < ONBOARD_STEPS.length - 1 ? 'Continue \u2192' : 'Get Started!';
+        }
+
+        function initOnboarding() {
+            if (localStorage.getItem('pv_onboarded')) return;
+            const hasTx  = (JSON.parse(localStorage.getItem('prismPayTransactions') || '[]')).length > 0;
+            const hasBudget = !!localStorage.getItem('prismPayBudget');
+            if (hasTx || hasBudget) { localStorage.setItem('pv_onboarded', '1'); return; }
+            onboardStep = 0;
+            renderOnboardStep(0);
+            document.getElementById('onboardingOverlay').classList.add('active');
+            document.getElementById('onboardNextBtn').onclick = () => {
+                ONBOARD_STEPS[onboardStep]?.apply();
+                onboardStep++;
+                if (onboardStep >= ONBOARD_STEPS.length) closeOnboarding(); else renderOnboardStep(onboardStep);
+            };
+            document.getElementById('onboardSkipBtn').onclick = () => {
+                onboardStep++;
+                if (onboardStep >= ONBOARD_STEPS.length) closeOnboarding(); else renderOnboardStep(onboardStep);
+            };
+        }
+
+        function closeOnboarding() {
+            const overlay = document.getElementById('onboardingOverlay');
+            if (overlay) overlay.classList.remove('active');
+            localStorage.setItem('pv_onboarded', '1');
+        }
+
+        // ===== SMART TIP CARDS =====
+        function checkSmartTips() {
+            const area = document.getElementById('tipCardsArea');
+            if (!area) return;
+            if (transactions.length < 5) { area.innerHTML = ''; return; }
+            const dismissed = JSON.parse(localStorage.getItem('pv_dismissed_tips') || '[]');
+            const tips = [];
+            if (!budget && !dismissed.includes('budget'))
+                tips.push({ id: 'budget', text: '💡 Set a budget to start tracking your spending', action: 'Set Budget', target: '.budget-card' });
+            if (savingsGoals.length === 0 && !dismissed.includes('goals'))
+                tips.push({ id: 'goals', text: '💡 Set a savings goal to work toward something', action: 'Add Goal', target: '.savings-goals-section' });
+            if (!currentUser && !dismissed.includes('pots'))
+                tips.push({ id: 'pots', text: '💡 Create a group pot to split costs with friends', action: 'Create Pot', target: '.pots-section' });
+            if (tips.length === 0) { area.innerHTML = ''; return; }
+            area.innerHTML = tips.map(t => `
+                <div class="tip-card" id="tipCard_${t.id}">
+                    <span class="tip-card-text">${t.text}</span>
+                    <button class="tip-card-action" type="button" onclick="scrollToSection('${t.target}')">&#8599; ${t.action}</button>
+                    <button class="tip-card-dismiss" type="button" onclick="dismissTip('${t.id}')" title="Dismiss">&times;</button>
+                </div>`).join('');
+        }
+
+        function dismissTip(id) {
+            const el = document.getElementById(`tipCard_${id}`);
+            if (el) { el.style.cssText += ';opacity:0;transform:translateX(20px);transition:all 0.3s ease'; setTimeout(() => el.remove(), 320); }
+            const d = JSON.parse(localStorage.getItem('pv_dismissed_tips') || '[]');
+            if (!d.includes(id)) d.push(id);
+            localStorage.setItem('pv_dismissed_tips', JSON.stringify(d));
+        }
+
+        function scrollToSection(selector) {
+            const el = document.querySelector(selector);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ===== COLLAPSIBLE SETTINGS =====
+        function initSettingsCollapsible() {
+            const savedId = localStorage.getItem('pv_open_settings_section');
+            document.querySelectorAll('.settings-section').forEach(section => {
+                const header = section.querySelector('.settings-section-header');
+                if (!header) return;
+                if (savedId && section.id === savedId) section.classList.add('open');
+                header.addEventListener('click', () => {
+                    const isOpen = section.classList.contains('open');
+                    document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('open'));
+                    if (!isOpen) {
+                        section.classList.add('open');
+                        if (section.id) localStorage.setItem('pv_open_settings_section', section.id);
+                    } else {
+                        localStorage.removeItem('pv_open_settings_section');
+                    }
+                });
+            });
+            // Data section buttons
+            const csvBtn = document.getElementById('settingsExportCsvBtn');
+            const pdfBtn = document.getElementById('settingsExportPdfBtn');
+            const rstBtn = document.getElementById('settingsResetBtn');
+            if (csvBtn) csvBtn.addEventListener('click', exportToCSV);
+            if (pdfBtn) pdfBtn.addEventListener('click', exportToPDF);
+            if (rstBtn) rstBtn.addEventListener('click', confirmResetAll);
+            // Notification toggles
+            const notifDaily  = document.getElementById('notifDailyToggle');
+            const notifBudget = document.getElementById('notifBudgetToggle');
+            if (notifDaily)  { notifDaily.checked  = localStorage.getItem('pv_notif_daily') === 'true'; notifDaily.addEventListener('change',  () => localStorage.setItem('pv_notif_daily',  notifDaily.checked)); }
+            if (notifBudget) { notifBudget.checked = localStorage.getItem('pv_notif_budget') !== 'false'; notifBudget.addEventListener('change', () => localStorage.setItem('pv_notif_budget', notifBudget.checked)); }
+        }
+
+        function confirmResetAll() {
+            if (!confirm('\u26a0\ufe0f This will permanently delete ALL your transactions, budget, goals and settings.\n\nThis action cannot be undone. Confirm?')) return;
+            ['prismPayTransactions','prismPayRecurring','prismPayBudget','prismPayStreak','prismPayTreat','prismPayCustomCategories','prismPaySavingsGoals','pv_include_recurring','pv_dismissed_tips','pv_onboarded'].forEach(k => localStorage.removeItem(k));
+            transactions = []; recurringRules = []; budget = null; streakData = null; treatPot = null; customCategories = []; savingsGoals = [];
+            renderTransactions(); updateSummary(true); renderChart(); renderBudget(); renderTreat(); updateStreak(); renderStreak(); renderSavingsGoals(); renderCategoryChips();
+            showToast('All local data has been reset', 'info');
+        }
+
+        // ===== CONTEXTUAL HELP TOOLTIPS =====
+        function initHelpTooltips() {
+            document.querySelectorAll('.help-btn').forEach(btn => {
+                const pop = btn.nextElementSibling;
+                if (!pop || !pop.classList.contains('help-popover')) return;
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const showing = pop.classList.contains('visible');
+                    document.querySelectorAll('.help-popover.visible').forEach(p => p.classList.remove('visible'));
+                    if (!showing) pop.classList.add('visible');
+                });
+            });
+            document.addEventListener('click', () => document.querySelectorAll('.help-popover.visible').forEach(p => p.classList.remove('visible')));
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        function initKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                const tag = (document.activeElement || {}).tagName || '';
+                const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeOnboarding();
+                    document.querySelectorAll('.help-popover.visible').forEach(p => p.classList.remove('visible'));
+                    return;
+                }
+                if (typing) return;
+                if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openModal(); }
+                if (e.key === 's' || e.key === 'S') {
+                    e.preventDefault();
+                    const el = document.querySelector('.settings-card');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+
+        // ===== FEATURE INIT (called after main init) =====
+        initSettingsCollapsible();
+        initHelpTooltips();
+        initKeyboardShortcuts();
+        initOnboarding();
+        checkSmartTips();
+
     </script>
 </body>
 </html>
