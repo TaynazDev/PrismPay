@@ -2,6 +2,23 @@
 
 All notable changes to Prism Vault will be documented in this file.
 
+## [2.0.6] - 2026-03-03
+
+### 🪲 Quick-Add Modal Fixes
+
+#### Fixed
+- **FAB button not opening the modal** — `setupEventListeners()` was called at the end of `init()`, after 15+ render functions. Any runtime error in a render step silently swallowed the listener registration. `setupEventListeners()` is now called first, before any render, guaranteeing the FAB and all other listeners are always bound.
+- **Receipt element crash** — Restored four missing HTML elements (`receiptFileInput`, `receiptLightbox`, `receiptLightboxClose`, `receiptLightboxImg`) that were accidentally removed. Their absence caused a `TypeError: null.addEventListener` that killed `init()` mid-execution.
+- **Modal not closing after submit** — `closeModal()` was the last call in `handleQuickAdd()`. If any re-render step threw, the modal stayed open. `closeModal()` is now called immediately after `saveTransactions()`, before any re-render.
+
+#### Changed
+- Both `setupEventListeners()` and the dashboard render chain are now wrapped in `try/catch`. If a render error occurs it is logged to the console (`[PrismVault] init render error: ...`) but does not break the rest of the page.
+- Absolute fallback: if `setupEventListeners()` itself throws, the FAB click handler is still bound directly to `fabButton` so the modal can always be opened.
+- `handleQuickAdd` now runs all dashboard update calls (`renderTransactions`, `updateSummary`, `renderChart`, `renderBudget`, `renderTreat`, `renderHeatmap`, `renderCouldaBought`, `updateStreak`, `renderStreak`, `renderSavingsGoals`) after closing the modal.
+- Added `if (!amount || amount <= 0) return;` guard to prevent zero-value transactions.
+
+---
+
 ## [2.0.5] - 2026-03-03
 
 ### 💱 Currency Selector — Rebuilt from Scratch
@@ -19,7 +36,6 @@ All notable changes to Prism Vault will be documented in this file.
 - Expanded region-to-currency detection map (80+ regions)
 - `getCurrencySymbol()` API preserved — all 41+ call sites across the app continue to display the correct symbol (balance, transactions, budget, progress bars, goals, group pots, charts, coulda-bought, PDF export, etc.)
 - Modal uses enhanced glassmorphism styling (`backdrop-filter: blur(32px)`)
-- ILS (Israeli Shekel) excluded from the currency list
 - Full world currency list retained: 150+ fiat currencies, XAU/XAG/XPT/XPD (precious metals), BTC/ETH (crypto)
 
 ---
@@ -404,7 +420,7 @@ All notable changes to Prism Vault will be documented in this file.
 
 ### 🎉 Initial Release
 
-**Live at:** https://taynazdev.github.io/PrismVault
+**Live at:** https://taynazdev.github.io/PrismPay
 
 #### Added
 
